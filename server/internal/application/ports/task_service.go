@@ -1,0 +1,24 @@
+package ports
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+
+	"github.com/DaniilKalts/dmark-todo-list/internal/application/domain"
+)
+
+type TaskFilter string
+
+const (
+	FilterActive    TaskFilter = "active"
+	FilterCompleted TaskFilter = "completed"
+)
+
+type TaskService interface {
+	CreateTask(ctx context.Context, task domain.Task) (domain.Task, error)
+	ListTasks(ctx context.Context, filter TaskFilter) ([]domain.Task, error)
+	Complete(ctx context.Context, id uuid.UUID) error
+	Reopen(ctx context.Context, id uuid.UUID) error
+	DeleteTask(ctx context.Context, id uuid.UUID) error
+}
