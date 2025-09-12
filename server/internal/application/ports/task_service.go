@@ -16,9 +16,9 @@ const (
 )
 
 type TaskService interface {
-	CreateTask(ctx context.Context, task domain.Task) (domain.Task, error)
-	ListTasks(ctx context.Context, filter TaskFilter) ([]domain.Task, error)
+	Create(ctx context.Context, title string) (domain.Task, error)
+	List(ctx context.Context, filter TaskFilter) ([]domain.Task, error)
 	Complete(ctx context.Context, id uuid.UUID) error
 	Reopen(ctx context.Context, id uuid.UUID) error
-	DeleteTask(ctx context.Context, id uuid.UUID) error
+	Delete(ctx context.Context, id uuid.UUID) error
 }

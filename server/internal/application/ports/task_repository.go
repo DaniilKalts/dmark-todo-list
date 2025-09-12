@@ -9,7 +9,7 @@ import (
 )
 
 type TaskRepository interface {
-	Create(ctx context.Context, task domain.Task) (domain.Task, error)
+	Create(ctx context.Context, id uuid.UUID, title string) (domain.Task, error)
 	List(ctx context.Context) ([]domain.Task, error)
 	ListActive(ctx context.Context) ([]domain.Task, error)
 	ListCompleted(ctx context.Context) ([]domain.Task, error)
