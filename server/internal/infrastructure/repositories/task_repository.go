@@ -18,10 +18,10 @@ func NewTaskRepository(q *sqlc.Queries) ports.TaskRepository {
 	return &taskRepo{q: q}
 }
 
-func (r *taskRepo) Create(ctx context.Context, task domain.Task) (domain.Task, error) {
+func (r *taskRepo) Create(ctx context.Context, id uuid.UUID, title string) (domain.Task, error) {
 	params := sqlc.CreateTaskParams{
-		ID:    task.ID,
-		Title: task.Title,
+		ID:    id,
+		Title: title,
 	}
 
 	row, err := r.q.CreateTask(ctx, params)

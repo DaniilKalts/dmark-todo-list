@@ -17,11 +17,16 @@ func NewTaskService(repo ports.TaskRepository) ports.TaskService {
 	return &taskService{repo: repo}
 }
 
-func (s *taskService) CreateTask(ctx context.Context, task domain.Task) (domain.Task, error) {
-	return s.repo.Create(ctx, task)
+func (s *taskService) Create(ctx context.Context, title string) (domain.Task, error) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return domain.Task{}, err
+	}
+
+	return s.repo.Create(ctx, id, title)
 }
 
-func (s *taskService) ListTasks(ctx context.Context, filter ports.TaskFilter) (
+func (s *taskService) List(ctx context.Context, filter ports.TaskFilter) (
 	[]domain.Task,
 	error,
 ) {
@@ -43,6 +48,6 @@ func (s *taskService) Reopen(ctx context.Context, id uuid.UUID) error {
 	return s.repo.MarkUndone(ctx, id)
 }
 
-func (s *taskService) DeleteTask(ctx context.Context, id uuid.UUID) error {
+func (s *taskService) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.repo.SoftDelete(ctx, id)
 }
