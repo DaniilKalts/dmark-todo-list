@@ -6,6 +6,7 @@ import (
 	// Библиотека для красивого вывода структур
 	"github.com/goforj/godump"
 
+	"github.com/DaniilKalts/dmark-todo-list/internal/infrastructure/adapters/database"
 	"github.com/DaniilKalts/dmark-todo-list/internal/infrastructure/config"
 )
 
@@ -16,4 +17,11 @@ func main() {
 	}
 
 	godump.Dump(cfg)
+
+	db, err := database.NewPostgres(&cfg.PostgresConfig)
+	if err != nil {
+		log.Fatalf("failed to initialize postgres: %v", err)
+	}
+
+	defer db.Close()
 }
