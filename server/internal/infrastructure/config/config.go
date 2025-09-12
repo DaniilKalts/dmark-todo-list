@@ -8,6 +8,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+type ServerConfig struct {
+	Port int `mapstructure:"port"`
+}
+
 type PostgresConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
@@ -19,6 +23,7 @@ type PostgresConfig struct {
 
 type Config struct {
 	PostgresConfig PostgresConfig `mapstructure:"postgres"`
+	ServerConfig   ServerConfig   `mapstructure:"server"`
 }
 
 func Load() (*Config, error) {
@@ -30,6 +35,8 @@ func Load() (*Config, error) {
 	v := viper.New()
 
 	// Ставим дефолтные значения на случай, если .env файла нет
+	v.SetDefault("postgres.port", 8080)
+
 	v.SetDefault("postgres.host", "postgres")
 	v.SetDefault("postgres.port", 5432)
 	v.SetDefault("postgres.user", "postgres")
