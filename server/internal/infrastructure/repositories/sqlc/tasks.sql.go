@@ -36,6 +36,19 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 	return i, err
 }
 
+const hardDeleteTask = `-- name: HardDeleteTask :execrows
+DELETE FROM tasks
+WHERE id = $1 AND deleted_at IS NOT NULL
+`
+
+func (q *Queries) HardDeleteTask(ctx context.Context, id uuid.UUID) (int64, error) {
+	result, err := q.db.ExecContext(ctx, hardDeleteTask, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const listCompletedTasks = `-- name: ListCompletedTasks :many
 SELECT id, title, created_at, updated_at, completed_at, deleted_at
 FROM tasks

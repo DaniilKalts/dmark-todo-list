@@ -14,8 +14,9 @@ type TaskRepository interface {
 	ListPending(ctx context.Context, order SortOrder) ([]domain.Task, error)
 	ListCompleted(ctx context.Context, order SortOrder) ([]domain.Task, error)
 	ListDeleted(ctx context.Context, order SortOrder) ([]domain.Task, error)
-	MarkDone(ctx context.Context, id uuid.UUID) error
-	MarkUndone(ctx context.Context, id uuid.UUID) error
+	Complete(ctx context.Context, id uuid.UUID) error
+	Reopen(ctx context.Context, id uuid.UUID) error
 	SoftDelete(ctx context.Context, id uuid.UUID) error
 	Restore(ctx context.Context, id uuid.UUID) error
+	HardDelete(ctx context.Context, id uuid.UUID) (int64, error)
 }

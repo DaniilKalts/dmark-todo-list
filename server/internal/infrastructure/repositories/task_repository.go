@@ -115,11 +115,11 @@ func (r *taskRepo) ListDeleted(ctx context.Context, order ports.SortOrder) ([]do
 	return tasks, nil
 }
 
-func (r *taskRepo) MarkDone(ctx context.Context, id uuid.UUID) error {
+func (r *taskRepo) Complete(ctx context.Context, id uuid.UUID) error {
 	return r.q.MarkTaskDone(ctx, id)
 }
 
-func (r *taskRepo) MarkUndone(ctx context.Context, id uuid.UUID) error {
+func (r *taskRepo) Reopen(ctx context.Context, id uuid.UUID) error {
 	return r.q.MarkTaskUndone(ctx, id)
 }
 
@@ -129,4 +129,8 @@ func (r *taskRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
 
 func (r *taskRepo) Restore(ctx context.Context, id uuid.UUID) error {
 	return r.q.RestoreDeletedTask(ctx, id)
+}
+
+func (r *taskRepo) HardDelete(ctx context.Context, id uuid.UUID) (int64, error) {
+	return r.q.HardDeleteTask(ctx, id)
 }

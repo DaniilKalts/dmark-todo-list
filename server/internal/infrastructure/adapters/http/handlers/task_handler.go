@@ -123,13 +123,13 @@ func (h *TaskHandler) Reopen(ctx fiber.Ctx) error {
 	return ctx.SendStatus(fiber.StatusNoContent)
 }
 
-func (h *TaskHandler) Delete(ctx fiber.Ctx) error {
+func (h *TaskHandler) SoftDelete(ctx fiber.Ctx) error {
 	id, err := httphelpers.ParseUUIDParam(ctx, "id")
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid UUID"})
 	}
 
-	err = h.svc.Delete(ctx, id)
+	err = h.svc.SoftDelete(ctx, id)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -144,6 +144,20 @@ func (h *TaskHandler) Restore(ctx fiber.Ctx) error {
 	}
 
 	err = h.svc.Restore(ctx, id)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return ctx.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *TaskHandler) HardDelete(ctx fiber.Ctx) error {
+	id, err := httphelpers.ParseUUIDParam(ctx, "id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid UUID"})
+	}
+
+	err = h.svc.HardDelete(ctx, id)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

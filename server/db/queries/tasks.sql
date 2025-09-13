@@ -54,3 +54,7 @@ WHERE id = $1 AND deleted_at IS NULL;
 UPDATE tasks
 SET deleted_at = NULL, updated_at = now()
 WHERE id = $1 AND deleted_at IS NOT NULL;
+
+-- name: HardDeleteTask :execrows
+DELETE FROM tasks
+WHERE id = $1 AND deleted_at IS NOT NULL;

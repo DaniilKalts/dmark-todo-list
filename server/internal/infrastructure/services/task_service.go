@@ -47,17 +47,28 @@ func (s *taskService) List(ctx context.Context, filter ports.TaskFilter, order p
 }
 
 func (s *taskService) Complete(ctx context.Context, id uuid.UUID) error {
-	return s.repo.MarkDone(ctx, id)
+	return s.repo.Complete(ctx, id)
 }
 
 func (s *taskService) Reopen(ctx context.Context, id uuid.UUID) error {
-	return s.repo.MarkUndone(ctx, id)
+	return s.repo.Reopen(ctx, id)
 }
 
-func (s *taskService) Delete(ctx context.Context, id uuid.UUID) error {
+func (s *taskService) SoftDelete(ctx context.Context, id uuid.UUID) error {
 	return s.repo.SoftDelete(ctx, id)
 }
 
 func (s *taskService) Restore(ctx context.Context, id uuid.UUID) error {
 	return s.repo.Restore(ctx, id)
+}
+
+func (s *taskService) HardDelete(ctx context.Context, id uuid.UUID) error {
+	rows, err := s.repo.HardDelete(ctx, id)
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ports.ErrTaskNotDeleted
+	}
+	return nil
 }
