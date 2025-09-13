@@ -2,14 +2,17 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Sidebar from './components/Sidebar';
-import AddTask from './components/AddTask';
-import TaskList from './components/TaskList';
+
+import InboxPage from './pages/InboxPage';
+import ActivePage from './pages/ActivePage';
+import CompletedPage from './pages/CompletedPage';
+import TrashPage from './pages/TrashPage';
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [deletedTasks, setDeletedTasks] = useState([]);
 
-  useEffect(() => {
+  const reloadTasks = () => {
     fetch('http://localhost:8080/api/v1/tasks')
       .then(res => res.json())
       .then(data => setTasks(data))
@@ -19,10 +22,15 @@ function App() {
       .then(res => res.json())
       .then(data => setDeletedTasks(data))
       .catch(err => console.error('Ошибка загрузки удалённых:', err));
+  };
+
+  useEffect(() => {
+    reloadTasks();
   }, []);
 
-  const handleTaskAdded = newTask => {
+  const handleTaskAdded = async newTask => {
     setTasks(prev => [...prev, newTask]);
+    reloadTasks();
   };
 
   const handleToggleTask = async task => {
@@ -32,6 +40,8 @@ function App() {
 
       if (res.ok) {
         setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, isDone: !t.isDone } : t)));
+
+        reloadTasks();
       } else {
         console.error('Ошибка при обновлении задачи');
       }
@@ -48,6 +58,7 @@ function App() {
       if (res.ok) {
         setTasks(prev => prev.filter(t => t.id !== task.id));
         setDeletedTasks(prev => [...prev, { ...task, deleted: true }]);
+        reloadTasks();
       } else {
         console.error('Ошибка при удалении задачи');
       }
@@ -64,6 +75,7 @@ function App() {
       if (res.ok) {
         setDeletedTasks(prev => prev.filter(t => t.id !== task.id));
         setTasks(prev => [...prev, { ...task, deleted: false }]);
+        reloadTasks();
       } else {
         console.error('Ошибка при восстановлении задачи');
       }
@@ -81,89 +93,41 @@ function App() {
             <Route
               path="/inbox"
               element={
-                <>
-                  <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
-                    Входящие
-                  </h1>
-                  <AddTask onTaskAdded={handleTaskAdded} />
-
-                  <div className="mt-6">
-                    <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                      Текущие
-                    </h2>
-                    <TaskList
-                      tasks={tasks.filter(t => !t.isDone)}
-                      onToggle={handleToggleTask}
-                      onDelete={handleDeleteTask}
-                    />
-                  </div>
-
-                  {tasks.some(t => t.isDone) && (
-                    <div className="mt-6">
-                      <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                        Завершённые
-                      </h2>
-                      <TaskList
-                        tasks={tasks.filter(t => t.isDone)}
-                        onToggle={handleToggleTask}
-                        onDelete={handleDeleteTask}
-                      />
-                    </div>
-                  )}
-                </>
+                <InboxPage
+                  tasks={tasks}
+                  onTaskAdded={handleTaskAdded}
+                  onToggle={handleToggleTask}
+                  onDelete={handleDeleteTask}
+                />
               }
             />
-
             <Route
               path="/active"
               element={
-                <>
-                  <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
-                    Невыполненные
-                  </h1>
-                  <TaskList
-                    tasks={tasks.filter(t => !t.isDone)}
-                    onToggle={handleToggleTask}
-                    onDelete={handleDeleteTask}
-                  />
-                </>
+                <ActivePage tasks={tasks} onToggle={handleToggleTask} onDelete={handleDeleteTask} />
               }
             />
-
             <Route
               path="/completed"
               element={
-                <>
-                  <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
-                    Завершённые
-                  </h1>
-                  <TaskList
-                    tasks={tasks.filter(t => t.isDone)}
-                    onToggle={handleToggleTask}
-                    onDelete={handleDeleteTask}
-                  />
-                </>
+                <CompletedPage
+                  tasks={tasks}
+                  onToggle={handleToggleTask}
+                  onDelete={handleDeleteTask}
+                />
               }
             />
-
             <Route
               path="/trash"
               element={
-                <>
-                  <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
-                    Корзина
-                  </h1>
-                  <TaskList
-                    tasks={deletedTasks}
-                    onToggle={handleToggleTask}
-                    onDelete={handleDeleteTask}
-                    onRestore={handleRestoreTask}
-                    isTrash={true}
-                  />
-                </>
+                <TrashPage
+                  tasks={deletedTasks}
+                  onToggle={handleToggleTask}
+                  onDelete={handleDeleteTask}
+                  onRestore={handleRestoreTask}
+                />
               }
             />
-
             <Route path="*" element={<Navigate to="/inbox" replace />} />
           </Routes>
         </main>
