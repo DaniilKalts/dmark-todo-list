@@ -13,6 +13,7 @@ type TaskFilter string
 const (
 	FilterActive    TaskFilter = "active"
 	FilterCompleted TaskFilter = "completed"
+	FilterDeleted   TaskFilter = "deleted"
 )
 
 type TaskService interface {

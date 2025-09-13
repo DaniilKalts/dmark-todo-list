@@ -35,6 +35,8 @@ func (s *taskService) List(ctx context.Context, filter ports.TaskFilter) (
 		return s.repo.ListActive(ctx)
 	case ports.FilterCompleted:
 		return s.repo.ListCompleted(ctx)
+	case ports.FilterDeleted:
+		return s.repo.ListDeleted(ctx)
 	default:
 		return s.repo.List(ctx)
 	}

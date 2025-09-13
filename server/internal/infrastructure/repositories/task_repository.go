@@ -58,6 +58,26 @@ func (r *taskRepo) List(ctx context.Context) ([]domain.Task, error) {
 	return tasks, nil
 }
 
+func (r *taskRepo) ListDeleted(ctx context.Context) ([]domain.Task, error) {
+	rows, err := r.q.ListDeletedTasks(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := make([]domain.Task, len(rows))
+	for i, row := range rows {
+		tasks[i] = domain.Task{
+			ID:        row.ID,
+			Title:     row.Title,
+			IsDone:    row.IsDone,
+			CreatedAt: row.CreatedAt,
+			UpdatedAt: row.UpdatedAt,
+		}
+	}
+
+	return tasks, nil
+}
+
 func (r *taskRepo) ListActive(ctx context.Context) ([]domain.Task, error) {
 	rows, err := r.q.ListActiveTasks(ctx)
 	if err != nil {

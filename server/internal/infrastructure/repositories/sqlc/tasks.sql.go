@@ -132,6 +132,50 @@ func (q *Queries) ListCompletedTasks(ctx context.Context) ([]ListCompletedTasksR
 	return items, nil
 }
 
+const listDeletedTasks = `-- name: ListDeletedTasks :many
+SELECT id, title, is_done, created_at, updated_at
+FROM tasks
+WHERE deleted_at IS NOT NULL
+ORDER BY deleted_at DESC
+`
+
+type ListDeletedTasksRow struct {
+	ID        uuid.UUID
+	Title     string
+	IsDone    bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) ListDeletedTasks(ctx context.Context) ([]ListDeletedTasksRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDeletedTasks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListDeletedTasksRow
+	for rows.Next() {
+		var i ListDeletedTasksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.IsDone,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTasks = `-- name: ListTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
