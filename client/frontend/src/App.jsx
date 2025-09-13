@@ -115,6 +115,22 @@ function App() {
             />
 
             <Route
+              path="/active"
+              element={
+                <>
+                  <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
+                    Невыполненные
+                  </h1>
+                  <TaskList
+                    tasks={tasks.filter(t => !t.isDone)}
+                    onToggle={handleToggleTask}
+                    onDelete={handleDeleteTask}
+                  />
+                </>
+              }
+            />
+
+            <Route
               path="/completed"
               element={
                 <>

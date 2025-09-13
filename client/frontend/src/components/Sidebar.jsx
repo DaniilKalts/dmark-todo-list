@@ -24,6 +24,16 @@ export default function Sidebar({ tasks }) {
 
       <nav className="flex flex-col gap-2 mt-auto">
         <Link
+          to="/active"
+          className={`${baseBtn} ${hoverBtn} ${location.pathname === '/active' ? activeBtn : ''}`}
+        >
+          <span className="flex items-center gap-3">
+            <span className="text-lg">🕒</span>
+            <span>Невыполненные</span>
+          </span>
+        </Link>
+
+        <Link
           to="/completed"
           className={`${baseBtn} ${hoverBtn} ${location.pathname === '/completed' ? activeBtn : ''}`}
         >
