@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
@@ -21,6 +22,32 @@ type TaskHandler struct {
 
 func NewTaskHandler(svc ports.TaskService) *TaskHandler {
 	return &TaskHandler{svc: svc}
+}
+
+func parseFilter(q string) (ports.TaskFilter, error) {
+	switch q {
+	case "pending":
+		return ports.FilterPending, nil
+	case "completed":
+		return ports.FilterCompleted, nil
+	case "deleted":
+		return ports.FilterDeleted, nil
+	case "":
+		return "", nil
+	default:
+		return "", errors.New("invalid filter")
+	}
+}
+
+func parseOrder(q string) (ports.SortOrder, error) {
+	switch q {
+	case "asc":
+		return ports.SortAsc, nil
+	case "desc", "":
+		return ports.SortDesc, nil
+	default:
+		return "", errors.New("invalid sort order")
+	}
 }
 
 func (h *TaskHandler) Create(ctx fiber.Ctx) error {
@@ -50,10 +77,17 @@ func (h *TaskHandler) Create(ctx fiber.Ctx) error {
 }
 
 func (h *TaskHandler) List(ctx fiber.Ctx) error {
-	filter := ctx.Query("filter")
-	order := ctx.Query("order")
+	filter, err := parseFilter(ctx.Query("filter"))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
 
-	resp, err := h.svc.List(ctx, ports.TaskFilter(filter), ports.SortOrder(order))
+	order, err := parseOrder(ctx.Query("order"))
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	resp, err := h.svc.List(ctx, filter, order)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -72,7 +106,7 @@ func (h *TaskHandler) Complete(ctx fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+	return ctx.SendStatus(fiber.StatusNoContent)
 }
 
 func (h *TaskHandler) Reopen(ctx fiber.Ctx) error {
@@ -86,7 +120,7 @@ func (h *TaskHandler) Reopen(ctx fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+	return ctx.SendStatus(fiber.StatusNoContent)
 }
 
 func (h *TaskHandler) Delete(ctx fiber.Ctx) error {
@@ -100,7 +134,7 @@ func (h *TaskHandler) Delete(ctx fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+	return ctx.SendStatus(fiber.StatusNoContent)
 }
 
 func (h *TaskHandler) Restore(ctx fiber.Ctx) error {
@@ -114,5 +148,5 @@ func (h *TaskHandler) Restore(ctx fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+	return ctx.SendStatus(fiber.StatusNoContent)
 }

@@ -14,15 +14,14 @@ type Task struct {
 	// кол-во задач у пользователя.
 	ID uuid.UUID `json:"id"`
 
-	Title     string    `json:"title"`
-	IsDone    bool      `json:"isDone"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Title       string     `json:"title"`
+	CompletedAt *time.Time `json:"completedAt"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 
 	// Soft delete будет помечать время удаления задания.
 	//
-	// В перспективе если пользователь случайно удалит задание,
-	// то он сможет обратиться в тех. поддержку и восстановить его.
+	// Это необходимо для восстановления задания из корзины.
 	//
 	// Клиенту поле не возвращаем, т.к оно необходимо только на backend,
 	// чтобы фильтровать неудаленные задачи.

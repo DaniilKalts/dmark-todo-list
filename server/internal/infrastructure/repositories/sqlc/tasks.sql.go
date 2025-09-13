@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -15,7 +14,7 @@ import (
 const createTask = `-- name: CreateTask :one
 INSERT INTO tasks (id, title)
 VALUES ($1, $2)
-RETURNING id, title, is_done, created_at, updated_at
+RETURNING id, title, created_at, updated_at, completed_at, deleted_at
 `
 
 type CreateTaskParams struct {
@@ -23,105 +22,45 @@ type CreateTaskParams struct {
 	Title string
 }
 
-type CreateTaskRow struct {
-	ID        uuid.UUID
-	Title     string
-	IsDone    bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (CreateTaskRow, error) {
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
 	row := q.db.QueryRowContext(ctx, createTask, arg.ID, arg.Title)
-	var i CreateTaskRow
+	var i Task
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
-		&i.IsDone,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CompletedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
-const listActiveTasks = `-- name: ListActiveTasks :many
-SELECT id, title, is_done, created_at, updated_at
-FROM tasks
-WHERE is_done = false AND deleted_at IS NULL
-ORDER BY
-    CASE WHEN $1 = 'asc' THEN created_at END ASC,
-    CASE WHEN $1 = 'desc' THEN created_at END DESC
-`
-
-type ListActiveTasksRow struct {
-	ID        uuid.UUID
-	Title     string
-	IsDone    bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) ListActiveTasks(ctx context.Context, sortOrder interface{}) ([]ListActiveTasksRow, error) {
-	rows, err := q.db.QueryContext(ctx, listActiveTasks, sortOrder)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ListActiveTasksRow
-	for rows.Next() {
-		var i ListActiveTasksRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Title,
-			&i.IsDone,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listCompletedTasks = `-- name: ListCompletedTasks :many
-SELECT id, title, is_done, created_at, updated_at
+SELECT id, title, created_at, updated_at, completed_at, deleted_at
 FROM tasks
-WHERE is_done = true AND deleted_at IS NULL
+WHERE completed_at IS NOT NULL AND deleted_at IS NULL
 ORDER BY
-    CASE WHEN $1 = 'asc' THEN created_at END ASC,
-    CASE WHEN $1 = 'desc' THEN created_at END DESC
+    CASE WHEN $1 = 'asc' THEN completed_at END ASC,
+    CASE WHEN $1 = 'desc' THEN completed_at END DESC
 `
 
-type ListCompletedTasksRow struct {
-	ID        uuid.UUID
-	Title     string
-	IsDone    bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{}) ([]ListCompletedTasksRow, error) {
+func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
 	rows, err := q.db.QueryContext(ctx, listCompletedTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListCompletedTasksRow
+	var items []Task
 	for rows.Next() {
-		var i ListCompletedTasksRow
+		var i Task
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
-			&i.IsDone,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CompletedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -137,37 +76,69 @@ func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{})
 }
 
 const listDeletedTasks = `-- name: ListDeletedTasks :many
-SELECT id, title, is_done, created_at, updated_at
+SELECT id, title, created_at, updated_at, completed_at, deleted_at
 FROM tasks
 WHERE deleted_at IS NOT NULL
 ORDER BY
-    CASE WHEN $1 = 'asc' THEN created_at END ASC,
-    CASE WHEN $1 = 'desc' THEN created_at END DESC
+    CASE WHEN $1 = 'asc' THEN deleted_at END ASC,
+    CASE WHEN $1 = 'desc' THEN deleted_at END DESC
 `
 
-type ListDeletedTasksRow struct {
-	ID        uuid.UUID
-	Title     string
-	IsDone    bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) ([]ListDeletedTasksRow, error) {
+func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
 	rows, err := q.db.QueryContext(ctx, listDeletedTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListDeletedTasksRow
+	var items []Task
 	for rows.Next() {
-		var i ListDeletedTasksRow
+		var i Task
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
-			&i.IsDone,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CompletedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPendingTasks = `-- name: ListPendingTasks :many
+SELECT id, title, created_at, updated_at, completed_at, deleted_at
+FROM tasks
+WHERE completed_at IS NULL AND deleted_at IS NULL
+ORDER BY
+    CASE WHEN $1 = 'asc' THEN created_at END ASC,
+    CASE WHEN $1 = 'desc' THEN created_at END DESC
+`
+
+func (q *Queries) ListPendingTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
+	rows, err := q.db.QueryContext(ctx, listPendingTasks, sortOrder)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.CompletedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -183,7 +154,7 @@ func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) (
 }
 
 const listTasks = `-- name: ListTasks :many
-SELECT id, title, is_done, created_at, updated_at
+SELECT id, title, created_at, updated_at, completed_at, deleted_at
 FROM tasks
 WHERE deleted_at IS NULL
 ORDER BY
@@ -191,29 +162,22 @@ ORDER BY
     CASE WHEN $1 = 'desc' THEN created_at END DESC
 `
 
-type ListTasksRow struct {
-	ID        uuid.UUID
-	Title     string
-	IsDone    bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) ListTasks(ctx context.Context, sortOrder interface{}) ([]ListTasksRow, error) {
+func (q *Queries) ListTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
 	rows, err := q.db.QueryContext(ctx, listTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListTasksRow
+	var items []Task
 	for rows.Next() {
-		var i ListTasksRow
+		var i Task
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
-			&i.IsDone,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.CompletedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -230,7 +194,7 @@ func (q *Queries) ListTasks(ctx context.Context, sortOrder interface{}) ([]ListT
 
 const markTaskDone = `-- name: MarkTaskDone :exec
 UPDATE tasks
-SET is_done = true, updated_at = now()
+SET completed_at = now(), updated_at = now()
 WHERE id = $1 AND deleted_at IS NULL
 `
 
@@ -241,7 +205,7 @@ func (q *Queries) MarkTaskDone(ctx context.Context, id uuid.UUID) error {
 
 const markTaskUndone = `-- name: MarkTaskUndone :exec
 UPDATE tasks
-SET is_done = false, updated_at = now()
+SET completed_at = NULL, updated_at = now()
 WHERE id = $1 AND deleted_at IS NULL
 `
 

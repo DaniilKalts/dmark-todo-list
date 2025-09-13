@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -18,6 +19,30 @@ func NewTaskRepository(q *sqlc.Queries) ports.TaskRepository {
 	return &taskRepo{q: q}
 }
 
+// Вспомогательная функция, чтобы не дублировать код мапинга строки из SQLC в структуру домена
+func mapRowToDomain(row sqlc.Task) domain.Task {
+	return domain.Task{
+		ID:        row.ID,
+		Title:     row.Title,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
+		CompletedAt: func() *time.Time {
+			if row.CompletedAt.Valid {
+				t := row.CompletedAt.Time
+				return &t
+			}
+			return nil
+		}(),
+		DeletedAt: func() *time.Time {
+			if row.DeletedAt.Valid {
+				t := row.DeletedAt.Time
+				return &t
+			}
+			return nil
+		}(),
+	}
+}
+
 func (r *taskRepo) Create(ctx context.Context, id uuid.UUID, title string) (domain.Task, error) {
 	params := sqlc.CreateTaskParams{
 		ID:    id,
@@ -29,13 +54,7 @@ func (r *taskRepo) Create(ctx context.Context, id uuid.UUID, title string) (doma
 		return domain.Task{}, err
 	}
 
-	return domain.Task{
-		ID:        row.ID,
-		Title:     row.Title,
-		IsDone:    row.IsDone,
-		CreatedAt: row.CreatedAt,
-		UpdatedAt: row.UpdatedAt,
-	}, err
+	return mapRowToDomain(row), nil
 }
 
 func (r *taskRepo) List(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
@@ -46,53 +65,21 @@ func (r *taskRepo) List(ctx context.Context, order ports.SortOrder) ([]domain.Ta
 
 	tasks := make([]domain.Task, len(rows))
 	for i, row := range rows {
-		tasks[i] = domain.Task{
-			ID:        row.ID,
-			Title:     row.Title,
-			IsDone:    row.IsDone,
-			CreatedAt: row.CreatedAt,
-			UpdatedAt: row.UpdatedAt,
-		}
+		tasks[i] = mapRowToDomain(row)
 	}
 
 	return tasks, nil
 }
 
-func (r *taskRepo) ListDeleted(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
-	rows, err := r.q.ListDeletedTasks(ctx, order)
+func (r *taskRepo) ListPending(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
+	rows, err := r.q.ListPendingTasks(ctx, order)
 	if err != nil {
 		return nil, err
 	}
 
 	tasks := make([]domain.Task, len(rows))
 	for i, row := range rows {
-		tasks[i] = domain.Task{
-			ID:        row.ID,
-			Title:     row.Title,
-			IsDone:    row.IsDone,
-			CreatedAt: row.CreatedAt,
-			UpdatedAt: row.UpdatedAt,
-		}
-	}
-
-	return tasks, nil
-}
-
-func (r *taskRepo) ListActive(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
-	rows, err := r.q.ListActiveTasks(ctx, order)
-	if err != nil {
-		return nil, err
-	}
-
-	tasks := make([]domain.Task, len(rows))
-	for i, row := range rows {
-		tasks[i] = domain.Task{
-			ID:        row.ID,
-			Title:     row.Title,
-			IsDone:    row.IsDone,
-			CreatedAt: row.CreatedAt,
-			UpdatedAt: row.UpdatedAt,
-		}
+		tasks[i] = mapRowToDomain(row)
 	}
 
 	return tasks, nil
@@ -108,13 +95,21 @@ func (r *taskRepo) ListCompleted(ctx context.Context, order ports.SortOrder) (
 
 	tasks := make([]domain.Task, len(rows))
 	for i, row := range rows {
-		tasks[i] = domain.Task{
-			ID:        row.ID,
-			Title:     row.Title,
-			IsDone:    row.IsDone,
-			CreatedAt: row.CreatedAt,
-			UpdatedAt: row.UpdatedAt,
-		}
+		tasks[i] = mapRowToDomain(row)
+	}
+
+	return tasks, nil
+}
+
+func (r *taskRepo) ListDeleted(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
+	rows, err := r.q.ListDeletedTasks(ctx, order)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := make([]domain.Task, len(rows))
+	for i, row := range rows {
+		tasks[i] = mapRowToDomain(row)
 	}
 
 	return tasks, nil

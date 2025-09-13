@@ -16,9 +16,9 @@ type CreateTaskRequest struct {
 
 // DTO для ответа при возврате задачи
 type TaskResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Title     string    `json:"title"`
-	IsDone    bool      `json:"isDone"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID          uuid.UUID  `json:"id"`
+	Title       string     `json:"title"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
+	CompletedAt *time.Time `json:"completedAt"`
 }

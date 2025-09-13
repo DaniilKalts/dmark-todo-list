@@ -7,7 +7,7 @@ import (
 )
 
 var fieldTranslations = map[string]string{
-	"Title": "Заголовок",
+	"Title": "заголовок",
 }
 
 func TranslateValidationError(err error) string {
@@ -20,7 +20,7 @@ func TranslateValidationError(err error) string {
 
 			switch e.Tag() {
 			case "required":
-				return fmt.Sprintf("Поле %s обязательно", fieldName)
+				return fmt.Sprintf("Поле \"%s\" обязательно", fieldName)
 			case "min":
 				return fmt.Sprintf(
 					"Поле %s должно содержать минимум %s символов", fieldName, e.Param(),

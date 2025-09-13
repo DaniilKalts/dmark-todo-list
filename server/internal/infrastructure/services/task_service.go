@@ -35,8 +35,8 @@ func (s *taskService) List(ctx context.Context, filter ports.TaskFilter, order p
 	}
 
 	switch filter {
-	case ports.FilterActive:
-		return s.repo.ListActive(ctx, order)
+	case ports.FilterPending:
+		return s.repo.ListPending(ctx, order)
 	case ports.FilterCompleted:
 		return s.repo.ListCompleted(ctx, order)
 	case ports.FilterDeleted:

@@ -11,7 +11,7 @@ import (
 type TaskFilter string
 
 const (
-	FilterActive    TaskFilter = "active"
+	FilterPending   TaskFilter = "pending"
 	FilterCompleted TaskFilter = "completed"
 	FilterDeleted   TaskFilter = "deleted"
 )

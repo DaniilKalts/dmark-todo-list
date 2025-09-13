@@ -12,10 +12,10 @@ import (
 )
 
 type Task struct {
-	ID        uuid.UUID
-	Title     string
-	IsDone    bool
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt sql.NullTime
+	ID          uuid.UUID
+	Title       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	CompletedAt sql.NullTime
+	DeletedAt   sql.NullTime
 }
