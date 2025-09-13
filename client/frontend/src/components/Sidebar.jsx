@@ -20,9 +20,6 @@ export default function Sidebar({ pendingCount }) {
           </span>
           <span className="text-sm">{pendingCount}</span>
         </Link>
-      </nav>
-
-      <nav className="flex flex-col gap-2 mt-auto">
         <Link
           to="/pending"
           className={`${baseBtn} ${hoverBtn} ${location.pathname === '/pending' ? activeBtn : ''}`}
@@ -32,7 +29,6 @@ export default function Sidebar({ pendingCount }) {
             <span>Текущие</span>
           </span>
         </Link>
-
         <Link
           to="/completed"
           className={`${baseBtn} ${hoverBtn} ${location.pathname === '/completed' ? activeBtn : ''}`}
@@ -42,7 +38,9 @@ export default function Sidebar({ pendingCount }) {
             <span>Завершённые</span>
           </span>
         </Link>
+      </nav>
 
+      <nav className="flex flex-col gap-2 mt-auto">
         <Link
           to="/trash"
           className={`${baseBtn} ${hoverBtn} ${location.pathname === '/trash' ? activeBtn : ''}`}

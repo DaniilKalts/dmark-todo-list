@@ -18,3 +18,7 @@ export async function trashTask(task) {
 export async function restoreTask(task) {
   await fetch(`${BASE_URL}/${task.id}/restore`, { method: 'PATCH' });
 }
+
+export async function hardDeleteTask(task) {
+  await fetch(`${BASE_URL}/${task.id}`, { method: 'DELETE' });
+}

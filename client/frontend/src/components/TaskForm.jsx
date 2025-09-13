@@ -48,20 +48,21 @@ export default function TaskForm({ onTaskAdded }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 bg-white dark:bg-[#1E1E1E]">
+      <div className="flex items-center border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden bg-white dark:bg-[#1E1E1E]">
         <input
           type="text"
           placeholder="Новая задача"
           value={title}
           onChange={e => setTitle(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400"
+          className="flex-1 px-3 py-2 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400"
         />
         <button
           onClick={handleSubmit}
-          className="ml-2 text-blue-500 hover:text-blue-600 font-semibold"
+          className="flex text-[22px] items-center justify-center w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 transition"
+          aria-label="Добавить задачу"
         >
-          Добавить
+          +
         </button>
       </div>
       {error && <p className="mt-2 text-sm text-red-500">{error}</p>}

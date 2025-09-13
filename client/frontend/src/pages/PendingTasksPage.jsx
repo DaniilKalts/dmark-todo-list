@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import TaskList from '../components/TaskList';
 
-export default function PendingTasksPage({ tasks, loadTasks, onToggle }) {
+export default function PendingTasksPage({ tasks, loadTasks, onToggle, onDelete }) {
   useEffect(() => {
     loadTasks('pending');
   }, [loadTasks]);
@@ -9,7 +9,7 @@ export default function PendingTasksPage({ tasks, loadTasks, onToggle }) {
   return (
     <>
       <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Текущие</h1>
-      <TaskList tasks={tasks} onToggle={task => onToggle(task, 'pending')} />
+      <TaskList tasks={tasks} onToggle={task => onToggle(task, 'pending')} onDelete={onDelete} />
     </>
   );
 }

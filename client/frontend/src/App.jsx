@@ -10,8 +10,15 @@ import CompletedTasksPage from './pages/CompletedTasksPage.jsx';
 import TrashPage from './pages/TrashPage';
 
 function App() {
-  const { tasks, pendingCount, loadTasks, handleToggleTask, handleDeleteTask, handleRestoreTask } =
-    useTasks();
+  const {
+    tasks,
+    pendingCount,
+    loadTasks,
+    handleToggleTask,
+    handleDeleteTask,
+    handleRestoreTask,
+    handleHardDeleteTask,
+  } = useTasks();
 
   return (
     <Router>
@@ -59,6 +66,7 @@ function App() {
                   tasks={tasks}
                   loadTasks={() => loadTasks('deleted')}
                   onRestore={handleRestoreTask}
+                  onHardDelete={handleHardDeleteTask}
                 />
               }
             />

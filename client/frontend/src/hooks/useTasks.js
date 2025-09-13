@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fetchTasks, toggleTask, trashTask, restoreTask } from '../api/tasks';
+import { fetchTasks, toggleTask, trashTask, restoreTask, hardDeleteTask } from '../api/tasks';
 
 export function useTasks() {
   const [tasks, setTasks] = useState([]);
@@ -27,5 +27,18 @@ export function useTasks() {
     await loadTasks();
   };
 
-  return { tasks, pendingCount, loadTasks, handleToggleTask, handleDeleteTask, handleRestoreTask };
+  const handleHardDeleteTask = async task => {
+    await hardDeleteTask(task);
+    await loadTasks('deleted');
+  };
+
+  return {
+    tasks,
+    pendingCount,
+    loadTasks,
+    handleToggleTask,
+    handleDeleteTask,
+    handleRestoreTask,
+    handleHardDeleteTask,
+  };
 }
