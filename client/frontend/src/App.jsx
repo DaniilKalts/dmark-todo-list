@@ -7,12 +7,18 @@ import TaskList from './components/TaskList';
 
 function App() {
   const [tasks, setTasks] = useState([]);
+  const [deletedTasks, setDeletedTasks] = useState([]);
 
   useEffect(() => {
     fetch('http://localhost:8080/api/v1/tasks')
       .then(res => res.json())
       .then(data => setTasks(data))
       .catch(err => console.error('Ошибка загрузки:', err));
+
+    fetch('http://localhost:8080/api/v1/tasks?filter=deleted')
+      .then(res => res.json())
+      .then(data => setDeletedTasks(data))
+      .catch(err => console.error('Ошибка загрузки удалённых:', err));
   }, []);
 
   const handleTaskAdded = newTask => {
@@ -40,9 +46,26 @@ function App() {
       const res = await fetch(url, { method: 'PATCH' });
 
       if (res.ok) {
-        setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, deleted: true } : t)));
+        setTasks(prev => prev.filter(t => t.id !== task.id));
+        setDeletedTasks(prev => [...prev, { ...task, deleted: true }]);
       } else {
         console.error('Ошибка при удалении задачи');
+      }
+    } catch (err) {
+      console.error('Ошибка сети:', err);
+    }
+  };
+
+  const handleRestoreTask = async task => {
+    try {
+      const url = `http://localhost:8080/api/v1/tasks/${task.id}/restore`;
+      const res = await fetch(url, { method: 'PATCH' });
+
+      if (res.ok) {
+        setDeletedTasks(prev => prev.filter(t => t.id !== task.id));
+        setTasks(prev => [...prev, { ...task, deleted: false }]);
+      } else {
+        console.error('Ошибка при восстановлении задачи');
       }
     } catch (err) {
       console.error('Ошибка сети:', err);
@@ -69,19 +92,19 @@ function App() {
                       Текущие
                     </h2>
                     <TaskList
-                      tasks={tasks.filter(t => !t.isDone && !t.deleted)}
+                      tasks={tasks.filter(t => !t.isDone)}
                       onToggle={handleToggleTask}
                       onDelete={handleDeleteTask}
                     />
                   </div>
 
-                  {tasks.some(t => t.isDone && !t.deleted) && (
+                  {tasks.some(t => t.isDone) && (
                     <div className="mt-6">
                       <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
                         Завершённые
                       </h2>
                       <TaskList
-                        tasks={tasks.filter(t => t.isDone && !t.deleted)}
+                        tasks={tasks.filter(t => t.isDone)}
                         onToggle={handleToggleTask}
                         onDelete={handleDeleteTask}
                       />
@@ -99,7 +122,7 @@ function App() {
                     Завершённые
                   </h1>
                   <TaskList
-                    tasks={tasks.filter(t => t.isDone && !t.deleted)}
+                    tasks={tasks.filter(t => t.isDone)}
                     onToggle={handleToggleTask}
                     onDelete={handleDeleteTask}
                   />
@@ -115,9 +138,11 @@ function App() {
                     Корзина
                   </h1>
                   <TaskList
-                    tasks={tasks.filter(t => t.deleted)}
+                    tasks={deletedTasks}
                     onToggle={handleToggleTask}
                     onDelete={handleDeleteTask}
+                    onRestore={handleRestoreTask}
+                    isTrash={true}
                   />
                 </>
               }
