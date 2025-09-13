@@ -39,7 +39,7 @@ func NewServer(taskHandler *handlers.TaskHandler) *Server {
 	taskGroup.Get("/", taskHandler.List)
 	taskGroup.Patch("/:id/done", taskHandler.Complete)
 	taskGroup.Patch("/:id/undone", taskHandler.Reopen)
-	taskGroup.Delete("/:id", taskHandler.Delete)
+	taskGroup.Patch("/:id", taskHandler.Delete)
 
 	return &Server{app: app}
 }

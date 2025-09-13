@@ -21,16 +21,28 @@ function App() {
 
   const handleToggleTask = async task => {
     try {
-      const url = `http://localhost:8080/api/v1/tasks/${task.id}/${
-        task.isDone ? 'undone' : 'done'
-      }`;
-
+      const url = `http://localhost:8080/api/v1/tasks/${task.id}/${task.isDone ? 'undone' : 'done'}`;
       const res = await fetch(url, { method: 'PATCH' });
 
       if (res.ok) {
         setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, isDone: !t.isDone } : t)));
       } else {
         console.error('Ошибка при обновлении задачи');
+      }
+    } catch (err) {
+      console.error('Ошибка сети:', err);
+    }
+  };
+
+  const handleDeleteTask = async task => {
+    try {
+      const url = `http://localhost:8080/api/v1/tasks/${task.id}`;
+      const res = await fetch(url, { method: 'PATCH' });
+
+      if (res.ok) {
+        setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, deleted: true } : t)));
+      } else {
+        console.error('Ошибка при удалении задачи');
       }
     } catch (err) {
       console.error('Ошибка сети:', err);
@@ -53,18 +65,26 @@ function App() {
                   <AddTask onTaskAdded={handleTaskAdded} />
 
                   <div className="mt-6">
-                    <h2 class="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                    <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
                       Текущие
                     </h2>
-                    <TaskList tasks={tasks.filter(t => !t.isDone)} onToggle={handleToggleTask} />
+                    <TaskList
+                      tasks={tasks.filter(t => !t.isDone && !t.deleted)}
+                      onToggle={handleToggleTask}
+                      onDelete={handleDeleteTask}
+                    />
                   </div>
 
-                  {tasks.some(t => t.isDone) && (
+                  {tasks.some(t => t.isDone && !t.deleted) && (
                     <div className="mt-6">
                       <h2 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
                         Завершённые
                       </h2>
-                      <TaskList tasks={tasks.filter(t => t.isDone)} onToggle={handleToggleTask} />
+                      <TaskList
+                        tasks={tasks.filter(t => t.isDone && !t.deleted)}
+                        onToggle={handleToggleTask}
+                        onDelete={handleDeleteTask}
+                      />
                     </div>
                   )}
                 </>
@@ -78,7 +98,11 @@ function App() {
                   <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
                     Завершённые
                   </h1>
-                  <TaskList tasks={tasks.filter(t => t.isDone)} onToggle={handleToggleTask} />
+                  <TaskList
+                    tasks={tasks.filter(t => t.isDone && !t.deleted)}
+                    onToggle={handleToggleTask}
+                    onDelete={handleDeleteTask}
+                  />
                 </>
               }
             />
@@ -90,7 +114,11 @@ function App() {
                   <h1 className="text-2xl text-gray-800 dark:text-gray-200 font-bold mb-4">
                     Корзина
                   </h1>
-                  <p className="text-gray-500">Здесь пока пусто...</p>
+                  <TaskList
+                    tasks={tasks.filter(t => t.deleted)}
+                    onToggle={handleToggleTask}
+                    onDelete={handleDeleteTask}
+                  />
                 </>
               }
             />
