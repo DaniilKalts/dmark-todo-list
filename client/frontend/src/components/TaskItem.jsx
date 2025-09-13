@@ -23,18 +23,19 @@ export default function TaskItem({
 
   return (
     <div className="relative">
-      <div className="flex items-center justify-between py-2 px-3 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start sm:items-center justify-between gap-2 py-2.5 px-3 rounded-lg transition hover:bg-gray-100 dark:hover:bg-gray-800">
+        <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
           <input
             type="checkbox"
             checked={!!task.completedAt}
             onChange={() => !isTrash && onToggle(task)}
             disabled={isTrash}
-            className={`w-4 h-4 rounded border border-gray-300 dark:border-gray-700 text-blue-500 focus:ring-blue-500
-    ${isTrash ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+            className={`w-5 h-5 md:w-4 md:h-4 rounded border border-gray-300 dark:border-gray-700 text-blue-500 focus:ring-blue-500 ${
+              isTrash ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+            }`}
           />
           <span
-            className={`text-gray-800 dark:text-gray-200 ${
+            className={`block flex-1 break-words text-gray-800 dark:text-gray-200 text-sm sm:text-base ${
               task.completedAt ? 'line-through text-gray-400 dark:text-gray-500 opacity-60' : ''
             }`}
           >
@@ -44,7 +45,10 @@ export default function TaskItem({
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="px-2 py-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          className="shrink-0 -mr-1 px-2 py-1.5 sm:py-1 rounded-md text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label="Открыть меню действий"
         >
           ⋮
         </button>
@@ -53,7 +57,8 @@ export default function TaskItem({
       {menuOpen && (
         <div
           ref={menuRef}
-          className="absolute right-2 top-full mt-1 w-40 bg-gray-800 dark:bg-gray-700 text-white rounded-md shadow-lg z-20"
+          className="absolute right-2 top-full mt-1 w-48 sm:w-44 bg-gray-800 dark:bg-gray-700 text-white rounded-md shadow-lg z-20 overflow-hidden"
+          role="menu"
         >
           {isTrash ? (
             <>
@@ -62,7 +67,8 @@ export default function TaskItem({
                   setMenuOpen(false);
                   onRestore(task);
                 }}
-                className="block w-full text-left px-4 py-2 text-sm rounded-tr-md rounded-tl-md hover:bg-gray-600"
+                className="block w-full text-left px-4 py-3 sm:py-2 text-sm hover:bg-gray-600"
+                role="menuitem"
               >
                 Восстановить
               </button>
@@ -71,7 +77,8 @@ export default function TaskItem({
                   setMenuOpen(false);
                   onHardDelete(task);
                 }}
-                className="block w-full text-left px-4 py-2 text-sm rounded-br-md rounded-bl-md hover:bg-gray-600"
+                className="block w-full text-left px-4 py-3 sm:py-2 text-sm hover:bg-gray-600"
+                role="menuitem"
               >
                 Удалить навсегда
               </button>
@@ -82,7 +89,8 @@ export default function TaskItem({
                 setMenuOpen(false);
                 onDelete(task);
               }}
-              className="block w-full text-left px-4 py-2 text-sm rounded-md hover:bg-gray-600"
+              className="block w-full text-left px-4 py-3 sm:py-2 text-sm hover:bg-gray-600"
+              role="menuitem"
             >
               Удалить
             </button>

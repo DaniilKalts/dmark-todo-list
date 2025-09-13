@@ -23,7 +23,7 @@ function App() {
 
   return (
     <Router>
-      <div className="flex">
+      <div className="flex min-h-screen">
         <Sidebar
           id="app-sidebar"
           pendingCount={pendingCount}
@@ -39,7 +39,7 @@ function App() {
           />
         )}
 
-        <main className="flex-1 p-8 bg-white dark:bg-[#1E1E1E]">
+        <main className="flex-1 p-8 bg-white dark:bg-[#1E1E1E] flex flex-col">
           <button
             type="button"
             aria-controls="app-sidebar"

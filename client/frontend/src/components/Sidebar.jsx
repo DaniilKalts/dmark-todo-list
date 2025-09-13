@@ -29,40 +29,39 @@ export default function Sidebar({ id = 'app-sidebar', pendingCount, isOpen = fal
           <Link
             to="/inbox"
             onClick={handleNavClick}
-            className={`${baseBtn} ${hoverBtn} ${
-              location.pathname === '/inbox' ? activeBtn : ''
-            } justify-between`}
+            className={`${baseBtn} ${hoverBtn} ${location.pathname === '/inbox' ? activeBtn : ''} justify-between`}
           >
             <span className="flex items-center gap-3">
               <span className="text-lg">📥</span>
-              <span>Входящие</span>
+              <span className="text-sm md:text-base">Входящие</span>
             </span>
-            <span className="text-sm">{pendingCount}</span>
+            <span
+              className="inline-flex items-center justify-center
+             text-xs md:text-sm text-gray-700 dark:text-gray-200"
+            >
+              {pendingCount}
+            </span>
           </Link>
 
           <Link
             to="/pending"
             onClick={handleNavClick}
-            className={`${baseBtn} ${hoverBtn} ${
-              location.pathname === '/pending' ? activeBtn : ''
-            }`}
+            className={`${baseBtn} ${hoverBtn} ${location.pathname === '/pending' ? activeBtn : ''}`}
           >
             <span className="flex items-center gap-3">
               <span className="text-lg">🕒</span>
-              <span>Текущие</span>
+              <span className="text-sm md:text-base">Текущие</span>
             </span>
           </Link>
 
           <Link
             to="/completed"
             onClick={handleNavClick}
-            className={`${baseBtn} ${hoverBtn} ${
-              location.pathname === '/completed' ? activeBtn : ''
-            }`}
+            className={`${baseBtn} ${hoverBtn} ${location.pathname === '/completed' ? activeBtn : ''}`}
           >
             <span className="flex items-center gap-3">
               <span className="text-lg">✅</span>
-              <span>Завершённые</span>
+              <span className="text-sm md:text-base">Завершённые</span>
             </span>
           </Link>
         </nav>
@@ -75,7 +74,7 @@ export default function Sidebar({ id = 'app-sidebar', pendingCount, isOpen = fal
           >
             <span className="flex items-center gap-3">
               <span className="text-lg">🗑️</span>
-              <span>Корзина</span>
+              <span className="text-sm md:text-base">Корзина</span>
             </span>
           </Link>
         </nav>

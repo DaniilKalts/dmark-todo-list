@@ -16,21 +16,27 @@ export default function TrashPage({ tasks, loadTasks, onRestore, onHardDelete })
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Корзина</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">Корзина</h1>
         <TaskFilters order={order} setOrder={setOrder} />
       </div>
 
-      {tasks.length === 0 ? (
-        <EmptyState icon="🗑️" message="Корзина пуста. Пока нечего удалять!" />
-      ) : (
-        <TaskList
-          tasks={tasks}
-          isTrash
-          onRestore={handleRestore}
-          onHardDelete={task => onHardDelete(task, 'deleted', order)}
-        />
-      )}
+      <div className="flex-1 flex">
+        {tasks.length === 0 ? (
+          <div className="flex-1 grid place-items-center">
+            <EmptyState icon="🗑️" message="Корзина пуста. Пока нечего удалять!" />
+          </div>
+        ) : (
+          <div className="w-full">
+            <TaskList
+              tasks={tasks}
+              isTrash
+              onRestore={handleRestore}
+              onHardDelete={task => onHardDelete(task, 'deleted', order)}
+            />
+          </div>
+        )}{' '}
+      </div>
     </>
   );
 }

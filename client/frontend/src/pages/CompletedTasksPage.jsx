@@ -12,20 +12,28 @@ export default function CompletedTasksPage({ tasks, loadTasks, onToggle, onDelet
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Завершённые</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">
+          Завершённые
+        </h1>
         <TaskFilters order={order} setOrder={setOrder} />
       </div>
 
-      {tasks.length === 0 ? (
-        <EmptyState icon="✅" message="Здесь пока нет завершённых задач. Сделай первый шаг!" />
-      ) : (
-        <TaskList
-          tasks={tasks}
-          onToggle={task => onToggle(task, 'completed', order)}
-          onDelete={task => onDelete(task, 'completed', order)}
-        />
-      )}
+      <div className="flex-1 flex">
+        {tasks.length === 0 ? (
+          <div className="flex-1 grid place-items-center">
+            <EmptyState icon="✅" message="Здесь пока нет завершённых задач. Сделай первый шаг!" />
+          </div>
+        ) : (
+          <div className="w-full">
+            <TaskList
+              tasks={tasks}
+              onToggle={task => onToggle(task, 'completed', order)}
+              onDelete={task => onDelete(task, 'completed', order)}
+            />
+          </div>
+        )}
+      </div>
     </>
   );
 }
