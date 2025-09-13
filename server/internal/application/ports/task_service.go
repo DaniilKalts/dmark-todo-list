@@ -22,4 +22,5 @@ type TaskService interface {
 	Complete(ctx context.Context, id uuid.UUID) error
 	Reopen(ctx context.Context, id uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	Restore(ctx context.Context, id uuid.UUID) error
 }

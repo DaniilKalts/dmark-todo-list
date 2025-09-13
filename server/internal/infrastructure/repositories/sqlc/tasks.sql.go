@@ -242,6 +242,17 @@ func (q *Queries) MarkTaskUndone(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const restoreDeletedTask = `-- name: RestoreDeletedTask :exec
+UPDATE tasks
+SET deleted_at = NULL, updated_at = now()
+WHERE id = $1 AND deleted_at IS NOT NULL
+`
+
+func (q *Queries) RestoreDeletedTask(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, restoreDeletedTask, id)
+	return err
+}
+
 const softDeleteTask = `-- name: SoftDeleteTask :exec
 UPDATE tasks
 SET deleted_at = now(), updated_at = now()

@@ -17,4 +17,5 @@ type TaskRepository interface {
 	MarkDone(ctx context.Context, id uuid.UUID) error
 	MarkUndone(ctx context.Context, id uuid.UUID) error
 	SoftDelete(ctx context.Context, id uuid.UUID) error
+	Restore(ctx context.Context, id uuid.UUID) error
 }

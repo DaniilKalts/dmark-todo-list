@@ -101,3 +101,17 @@ func (h *TaskHandler) Delete(ctx fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{})
 }
+
+func (h *TaskHandler) Restore(ctx fiber.Ctx) error {
+	id, err := httphelpers.ParseUUIDParam(ctx, "id")
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid UUID"})
+	}
+
+	err = h.svc.Restore(ctx, id)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return ctx.Status(fiber.StatusNoContent).JSON(fiber.Map{})
+}

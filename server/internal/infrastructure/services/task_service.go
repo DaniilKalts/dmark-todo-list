@@ -53,3 +53,7 @@ func (s *taskService) Reopen(ctx context.Context, id uuid.UUID) error {
 func (s *taskService) Delete(ctx context.Context, id uuid.UUID) error {
 	return s.repo.SoftDelete(ctx, id)
 }
+
+func (s *taskService) Restore(ctx context.Context, id uuid.UUID) error {
+	return s.repo.Restore(ctx, id)
+}

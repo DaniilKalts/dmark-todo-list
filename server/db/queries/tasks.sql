@@ -9,6 +9,12 @@ FROM tasks
 WHERE deleted_at IS NULL
 ORDER BY created_at;
 
+-- name: ListDeletedTasks :many
+SELECT id, title, is_done, created_at, updated_at
+FROM tasks
+WHERE deleted_at IS NOT NULL
+ORDER BY deleted_at DESC;
+
 -- name: ListActiveTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
@@ -35,3 +41,8 @@ WHERE id = $1 AND deleted_at IS NULL;
 UPDATE tasks
 SET deleted_at = now(), updated_at = now()
 WHERE id = $1 AND deleted_at IS NULL;
+
+-- name: RestoreDeletedTask :exec
+UPDATE tasks
+SET deleted_at = NULL, updated_at = now()
+WHERE id = $1 AND deleted_at IS NOT NULL;

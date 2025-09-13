@@ -40,6 +40,7 @@ func NewServer(taskHandler *handlers.TaskHandler) *Server {
 	taskGroup.Patch("/:id/done", taskHandler.Complete)
 	taskGroup.Patch("/:id/undone", taskHandler.Reopen)
 	taskGroup.Patch("/:id", taskHandler.Delete)
+	taskGroup.Patch("/:id/restore", taskHandler.Restore)
 
 	return &Server{app: app}
 }

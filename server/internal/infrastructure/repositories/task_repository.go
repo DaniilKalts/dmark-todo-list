@@ -129,3 +129,7 @@ func (r *taskRepo) MarkUndone(ctx context.Context, id uuid.UUID) error {
 func (r *taskRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
 	return r.q.SoftDeleteTask(ctx, id)
 }
+
+func (r *taskRepo) Restore(ctx context.Context, id uuid.UUID) error {
+	return r.q.RestoreDeletedTask(ctx, id)
+}
