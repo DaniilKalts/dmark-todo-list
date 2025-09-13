@@ -31,7 +31,7 @@ function App() {
               element={
                 <InboxTasksPage
                   tasks={tasks}
-                  loadTasks={() => loadTasks('')}
+                  loadTasks={loadTasks}
                   onToggle={handleToggleTask}
                   onDelete={handleDeleteTask}
                 />
@@ -40,34 +40,34 @@ function App() {
             <Route
               path="/pending"
               element={
-                <PendingTasksPage
-                  tasks={tasks}
-                  loadTasks={() => loadTasks('pending')}
-                  onToggle={handleToggleTask}
-                  onDelete={handleDeleteTask}
-                />
+                   <PendingTasksPage
+                     tasks={tasks}
+                     loadTasks={loadTasks}
+                     onToggle={handleToggleTask}
+                     onDelete={handleDeleteTask}
+                   />
               }
             />
             <Route
               path="/completed"
               element={
-                <CompletedTasksPage
-                  tasks={tasks}
-                  loadTasks={() => loadTasks('completed')}
-                  onToggle={handleToggleTask}
-                  onDelete={handleDeleteTask}
-                />
+                   <CompletedTasksPage
+                     tasks={tasks}
+                     loadTasks={loadTasks}
+                     onToggle={handleToggleTask}
+                     onDelete={handleDeleteTask}
+                   />
               }
             />
             <Route
               path="/trash"
               element={
-                <TrashPage
-                  tasks={tasks}
-                  loadTasks={() => loadTasks('deleted')}
-                  onRestore={handleRestoreTask}
-                  onHardDelete={handleHardDeleteTask}
-                />
+                   <TrashPage
+                     tasks={tasks}
+                     loadTasks={loadTasks}
+                     onRestore={handleRestoreTask}
+                     onHardDelete={handleHardDeleteTask}
+                   />
               }
             />
             <Route path="*" element={<Navigate to="/inbox" replace />} />

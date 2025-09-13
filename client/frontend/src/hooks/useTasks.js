@@ -1,44 +1,45 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { fetchTasks, toggleTask, trashTask, restoreTask, hardDeleteTask } from '../api/tasks';
 
 export function useTasks() {
-  const [tasks, setTasks] = useState([]);
-  const [pendingCount, setPendingCount] = useState(0);
+    const [tasks, setTasks] = useState([]);
+    const [pendingCount, setPendingCount] = useState(0);
 
-  const loadTasks = async (filter = '') => {
-    const data = await fetchTasks(filter);
-    setTasks(data);
-    const pending = await fetchTasks('pending');
-    setPendingCount(pending.length);
-  };
+    const loadTasks = useCallback(async (filter = '', order = 'desc') => {
+        const data = await fetchTasks(filter, order);
+        setTasks(data);
 
-  const handleToggleTask = async (task, filter = '') => {
-    await toggleTask(task);
-    await loadTasks(filter);
-  };
+        const pending = await fetchTasks('pending', 'desc');
+        setPendingCount(pending.length);
+    }, []);
 
-  const handleDeleteTask = async (task, filter = '') => {
-    await trashTask(task);
-    await loadTasks(filter);
-  };
+    const handleToggleTask = async (task, filter = '', order = 'desc') => {
+        await toggleTask(task);
+        await loadTasks(filter, order);
+    };
 
-  const handleRestoreTask = async task => {
-    await restoreTask(task);
-    await loadTasks();
-  };
+    const handleDeleteTask = async (task, filter = '', order = 'desc') => {
+        await trashTask(task);
+        await loadTasks(filter, order);
+    };
 
-  const handleHardDeleteTask = async task => {
-    await hardDeleteTask(task);
-    await loadTasks('deleted');
-  };
+    const handleRestoreTask = async (task, filter = '', order = 'desc') => {
+        await restoreTask(task);
+        await loadTasks(filter, order);
+    };
 
-  return {
-    tasks,
-    pendingCount,
-    loadTasks,
-    handleToggleTask,
-    handleDeleteTask,
-    handleRestoreTask,
-    handleHardDeleteTask,
-  };
+    const handleHardDeleteTask = async (task, filter = 'deleted', order = 'desc') => {
+        await hardDeleteTask(task);
+        await loadTasks(filter, order);
+    };
+
+    return {
+        tasks,
+        pendingCount,
+        loadTasks,
+        handleToggleTask,
+        handleDeleteTask,
+        handleRestoreTask,
+        handleHardDeleteTask,
+    };
 }
