@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 
-export default function Sidebar({ tasks }) {
+export default function Sidebar({ pendingCount }) {
   const location = useLocation();
 
   const baseBtn = 'flex items-center px-3 py-2 rounded-lg transition cursor-pointer';
@@ -18,18 +18,18 @@ export default function Sidebar({ tasks }) {
             <span className="text-lg">📥</span>
             <span>Входящие</span>
           </span>
-          <span className="text-sm">{tasks.filter(t => !t.isDone).length}</span>
+          <span className="text-sm">{pendingCount}</span>
         </Link>
       </nav>
 
       <nav className="flex flex-col gap-2 mt-auto">
         <Link
-          to="/active"
-          className={`${baseBtn} ${hoverBtn} ${location.pathname === '/active' ? activeBtn : ''}`}
+          to="/pending"
+          className={`${baseBtn} ${hoverBtn} ${location.pathname === '/pending' ? activeBtn : ''}`}
         >
           <span className="flex items-center gap-3">
             <span className="text-lg">🕒</span>
-            <span>Невыполненные</span>
+            <span>Текущие</span>
           </span>
         </Link>
 

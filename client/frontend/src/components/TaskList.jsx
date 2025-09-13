@@ -1,10 +1,10 @@
-import Task from './Task';
+import TaskItem from './TaskItem.jsx';
 
 export default function TaskList({ tasks, onToggle, onDelete, onRestore, isTrash = false }) {
   return (
     <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-700">
       {tasks.map(task => (
-        <Task
+        <TaskItem
           key={task.id}
           task={task}
           onToggle={onToggle}
