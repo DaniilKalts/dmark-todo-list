@@ -16,9 +16,16 @@ const (
 	FilterDeleted   TaskFilter = "deleted"
 )
 
+type SortOrder string
+
+const (
+	SortAsc  SortOrder = "asc"
+	SortDesc SortOrder = "desc"
+)
+
 type TaskService interface {
 	Create(ctx context.Context, title string) (domain.Task, error)
-	List(ctx context.Context, filter TaskFilter) ([]domain.Task, error)
+	List(ctx context.Context, filter TaskFilter, order SortOrder) ([]domain.Task, error)
 	Complete(ctx context.Context, id uuid.UUID) error
 	Reopen(ctx context.Context, id uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error

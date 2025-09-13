@@ -26,19 +26,23 @@ func (s *taskService) Create(ctx context.Context, title string) (domain.Task, er
 	return s.repo.Create(ctx, id, title)
 }
 
-func (s *taskService) List(ctx context.Context, filter ports.TaskFilter) (
+func (s *taskService) List(ctx context.Context, filter ports.TaskFilter, order ports.SortOrder) (
 	[]domain.Task,
 	error,
 ) {
+	if order == "" {
+		order = ports.SortDesc
+	}
+
 	switch filter {
 	case ports.FilterActive:
-		return s.repo.ListActive(ctx)
+		return s.repo.ListActive(ctx, order)
 	case ports.FilterCompleted:
-		return s.repo.ListCompleted(ctx)
+		return s.repo.ListCompleted(ctx, order)
 	case ports.FilterDeleted:
-		return s.repo.ListDeleted(ctx)
+		return s.repo.ListDeleted(ctx, order)
 	default:
-		return s.repo.List(ctx)
+		return s.repo.List(ctx, order)
 	}
 }
 

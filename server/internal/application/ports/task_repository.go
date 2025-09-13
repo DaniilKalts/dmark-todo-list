@@ -10,10 +10,10 @@ import (
 
 type TaskRepository interface {
 	Create(ctx context.Context, id uuid.UUID, title string) (domain.Task, error)
-	List(ctx context.Context) ([]domain.Task, error)
-	ListDeleted(ctx context.Context) ([]domain.Task, error)
-	ListActive(ctx context.Context) ([]domain.Task, error)
-	ListCompleted(ctx context.Context) ([]domain.Task, error)
+	List(ctx context.Context, order SortOrder) ([]domain.Task, error)
+	ListDeleted(ctx context.Context, order SortOrder) ([]domain.Task, error)
+	ListActive(ctx context.Context, order SortOrder) ([]domain.Task, error)
+	ListCompleted(ctx context.Context, order SortOrder) ([]domain.Task, error)
 	MarkDone(ctx context.Context, id uuid.UUID) error
 	MarkUndone(ctx context.Context, id uuid.UUID) error
 	SoftDelete(ctx context.Context, id uuid.UUID) error

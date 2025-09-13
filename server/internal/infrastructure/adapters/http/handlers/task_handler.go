@@ -51,8 +51,9 @@ func (h *TaskHandler) Create(ctx fiber.Ctx) error {
 
 func (h *TaskHandler) List(ctx fiber.Ctx) error {
 	filter := ctx.Query("filter")
+	order := ctx.Query("order")
 
-	resp, err := h.svc.List(ctx, ports.TaskFilter(filter))
+	resp, err := h.svc.List(ctx, ports.TaskFilter(filter), ports.SortOrder(order))
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

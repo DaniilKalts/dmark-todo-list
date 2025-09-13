@@ -38,8 +38,8 @@ func (r *taskRepo) Create(ctx context.Context, id uuid.UUID, title string) (doma
 	}, err
 }
 
-func (r *taskRepo) List(ctx context.Context) ([]domain.Task, error) {
-	rows, err := r.q.ListTasks(ctx)
+func (r *taskRepo) List(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
+	rows, err := r.q.ListTasks(ctx, string(order))
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +58,8 @@ func (r *taskRepo) List(ctx context.Context) ([]domain.Task, error) {
 	return tasks, nil
 }
 
-func (r *taskRepo) ListDeleted(ctx context.Context) ([]domain.Task, error) {
-	rows, err := r.q.ListDeletedTasks(ctx)
+func (r *taskRepo) ListDeleted(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
+	rows, err := r.q.ListDeletedTasks(ctx, order)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,8 @@ func (r *taskRepo) ListDeleted(ctx context.Context) ([]domain.Task, error) {
 	return tasks, nil
 }
 
-func (r *taskRepo) ListActive(ctx context.Context) ([]domain.Task, error) {
-	rows, err := r.q.ListActiveTasks(ctx)
+func (r *taskRepo) ListActive(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
+	rows, err := r.q.ListActiveTasks(ctx, order)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +98,10 @@ func (r *taskRepo) ListActive(ctx context.Context) ([]domain.Task, error) {
 	return tasks, nil
 }
 
-func (r *taskRepo) ListCompleted(ctx context.Context) ([]domain.Task, error) {
-	rows, err := r.q.ListCompletedTasks(ctx)
+func (r *taskRepo) ListCompleted(ctx context.Context, order ports.SortOrder) (
+	[]domain.Task, error,
+) {
+	rows, err := r.q.ListCompletedTasks(ctx, order)
 	if err != nil {
 		return nil, err
 	}

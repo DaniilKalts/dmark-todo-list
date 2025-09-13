@@ -7,25 +7,33 @@ RETURNING id, title, is_done, created_at, updated_at;
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE deleted_at IS NULL
-ORDER BY created_at;
+ORDER BY
+    CASE WHEN sqlc.arg('sort_order') = 'asc' THEN created_at END ASC,
+    CASE WHEN sqlc.arg('sort_order') = 'desc' THEN created_at END DESC;
 
 -- name: ListDeletedTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE deleted_at IS NOT NULL
-ORDER BY deleted_at DESC;
+ORDER BY
+    CASE WHEN sqlc.arg('sort_order') = 'asc' THEN created_at END ASC,
+    CASE WHEN sqlc.arg('sort_order') = 'desc' THEN created_at END DESC;
 
 -- name: ListActiveTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE is_done = false AND deleted_at IS NULL
-ORDER BY created_at;
+ORDER BY
+    CASE WHEN sqlc.arg('sort_order') = 'asc' THEN created_at END ASC,
+    CASE WHEN sqlc.arg('sort_order') = 'desc' THEN created_at END DESC;
 
 -- name: ListCompletedTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE is_done = true AND deleted_at IS NULL
-ORDER BY created_at;
+ORDER BY
+    CASE WHEN sqlc.arg('sort_order') = 'asc' THEN created_at END ASC,
+    CASE WHEN sqlc.arg('sort_order') = 'desc' THEN created_at END DESC;
 
 -- name: MarkTaskDone :exec
 UPDATE tasks

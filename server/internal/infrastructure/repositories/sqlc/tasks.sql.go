@@ -48,7 +48,9 @@ const listActiveTasks = `-- name: ListActiveTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE is_done = false AND deleted_at IS NULL
-ORDER BY created_at
+ORDER BY
+    CASE WHEN $1 = 'asc' THEN created_at END ASC,
+    CASE WHEN $1 = 'desc' THEN created_at END DESC
 `
 
 type ListActiveTasksRow struct {
@@ -59,8 +61,8 @@ type ListActiveTasksRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) ListActiveTasks(ctx context.Context) ([]ListActiveTasksRow, error) {
-	rows, err := q.db.QueryContext(ctx, listActiveTasks)
+func (q *Queries) ListActiveTasks(ctx context.Context, sortOrder interface{}) ([]ListActiveTasksRow, error) {
+	rows, err := q.db.QueryContext(ctx, listActiveTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +94,9 @@ const listCompletedTasks = `-- name: ListCompletedTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE is_done = true AND deleted_at IS NULL
-ORDER BY created_at
+ORDER BY
+    CASE WHEN $1 = 'asc' THEN created_at END ASC,
+    CASE WHEN $1 = 'desc' THEN created_at END DESC
 `
 
 type ListCompletedTasksRow struct {
@@ -103,8 +107,8 @@ type ListCompletedTasksRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) ListCompletedTasks(ctx context.Context) ([]ListCompletedTasksRow, error) {
-	rows, err := q.db.QueryContext(ctx, listCompletedTasks)
+func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{}) ([]ListCompletedTasksRow, error) {
+	rows, err := q.db.QueryContext(ctx, listCompletedTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +140,9 @@ const listDeletedTasks = `-- name: ListDeletedTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE deleted_at IS NOT NULL
-ORDER BY deleted_at DESC
+ORDER BY
+    CASE WHEN $1 = 'asc' THEN created_at END ASC,
+    CASE WHEN $1 = 'desc' THEN created_at END DESC
 `
 
 type ListDeletedTasksRow struct {
@@ -147,8 +153,8 @@ type ListDeletedTasksRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) ListDeletedTasks(ctx context.Context) ([]ListDeletedTasksRow, error) {
-	rows, err := q.db.QueryContext(ctx, listDeletedTasks)
+func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) ([]ListDeletedTasksRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDeletedTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +186,9 @@ const listTasks = `-- name: ListTasks :many
 SELECT id, title, is_done, created_at, updated_at
 FROM tasks
 WHERE deleted_at IS NULL
-ORDER BY created_at
+ORDER BY
+    CASE WHEN $1 = 'asc' THEN created_at END ASC,
+    CASE WHEN $1 = 'desc' THEN created_at END DESC
 `
 
 type ListTasksRow struct {
@@ -191,8 +199,8 @@ type ListTasksRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) ListTasks(ctx context.Context) ([]ListTasksRow, error) {
-	rows, err := q.db.QueryContext(ctx, listTasks)
+func (q *Queries) ListTasks(ctx context.Context, sortOrder interface{}) ([]ListTasksRow, error) {
+	rows, err := q.db.QueryContext(ctx, listTasks, sortOrder)
 	if err != nil {
 		return nil, err
 	}
