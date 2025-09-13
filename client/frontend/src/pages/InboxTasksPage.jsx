@@ -1,12 +1,15 @@
 import { useEffect } from 'react';
-
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
+import EmptyState from '../components/EmptyState';
 
-export default function InboxView({ tasks, loadTasks, onToggle, onDelete }) {
+export default function InboxTasksPage({ tasks, loadTasks, onToggle, onDelete }) {
   useEffect(() => {
     loadTasks();
   }, []);
+
+  const activeTasks = tasks.filter(t => !t.completedAt);
+  const completedTasks = tasks.filter(t => t.completedAt);
 
   return (
     <>
@@ -14,26 +17,30 @@ export default function InboxView({ tasks, loadTasks, onToggle, onDelete }) {
       <TaskForm onTaskAdded={() => loadTasks()} />
 
       <section className="mt-6">
-        <h2 className="text-lg font-semibold mb-2 text-gray-600 dark:text-gray-400">Текущие</h2>
-        <TaskList
-          tasks={tasks.filter(t => !t.completedAt)}
-          onToggle={onToggle}
-          onDelete={onDelete}
-        />
-      </section>
+        {activeTasks.length === 0 && completedTasks.length === 0 ? (
+          <EmptyState icon="📝" message="У тебя нет текущих задач. Добавь новую!" />
+        ) : (
+          <>
+            {activeTasks.length > 0 && (
+              <>
+                <h2 className="text-lg font-semibold mb-2 text-gray-600 dark:text-gray-400">
+                  Текущие
+                </h2>
+                <TaskList tasks={activeTasks} onToggle={onToggle} onDelete={onDelete} />
+              </>
+            )}
 
-      {tasks.some(t => t.completedAt) && (
-        <section className="mt-6">
-          <h2 className="text-lg font-semibold mb-2 text-gray-600 dark:text-gray-400">
-            Завершённые
-          </h2>
-          <TaskList
-            tasks={tasks.filter(t => t.completedAt)}
-            onToggle={onToggle}
-            onDelete={onDelete}
-          />
-        </section>
-      )}
+            {completedTasks.length > 0 && (
+              <section className="mt-6">
+                <h2 className="text-lg font-semibold mb-2 text-gray-600 dark:text-gray-400">
+                  Завершённые
+                </h2>
+                <TaskList tasks={completedTasks} onToggle={onToggle} onDelete={onDelete} />
+              </section>
+            )}
+          </>
+        )}
+      </section>
     </>
   );
 }
