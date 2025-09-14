@@ -1,5 +1,12 @@
 import { useState, useCallback } from 'react';
-import { fetchTasks, toggleTask, trashTask, restoreTask, hardDeleteTask } from '../api/tasks';
+import {
+  fetchTasks,
+  toggleTask,
+  trashTask,
+  restoreTask,
+  hardDeleteTask,
+  emptyTrash,
+} from '../api/tasks';
 
 export function useTasks() {
   const [tasks, setTasks] = useState([]);
@@ -33,6 +40,11 @@ export function useTasks() {
     await loadTasks(filter, order);
   };
 
+  const handleEmptyTrash = async (filter = 'deleted', order = 'desc') => {
+    await emptyTrash();
+    await loadTasks(filter, order);
+  };
+
   return {
     tasks,
     pendingCount,
@@ -41,5 +53,6 @@ export function useTasks() {
     handleDeleteTask,
     handleRestoreTask,
     handleHardDeleteTask,
+    handleEmptyTrash,
   };
 }

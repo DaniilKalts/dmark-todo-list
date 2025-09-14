@@ -66,7 +66,7 @@ export default function Sidebar({ id = 'app-sidebar', pendingCount, isOpen = fal
           </Link>
         </nav>
 
-        <nav className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+        <nav className="flex flex-col gap-2 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
           <Link
             to="/trash"
             onClick={handleNavClick}

@@ -27,3 +27,7 @@ export async function restoreTask(task) {
 export async function hardDeleteTask(task) {
   await fetch(`${BASE_URL}/${task.id}`, { method: 'DELETE' });
 }
+
+export async function emptyTrash() {
+  await fetch(`${BASE_URL}/trash`, { method: 'DELETE' });
+}

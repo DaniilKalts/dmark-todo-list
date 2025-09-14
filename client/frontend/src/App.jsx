@@ -18,6 +18,7 @@ function App() {
     handleDeleteTask,
     handleRestoreTask,
     handleHardDeleteTask,
+    handleEmptyTrash,
   } = useTasks();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -100,6 +101,7 @@ function App() {
                   loadTasks={loadTasks}
                   onRestore={handleRestoreTask}
                   onHardDelete={handleHardDeleteTask}
+                  onEmptyTrash={handleEmptyTrash}
                 />
               }
             />
