@@ -1,19 +1,99 @@
-# README
+# DMARK To-Do List — Frontend
 
-## About
+SPA (Single Page Application) приложение на React для работы с DMARK To-Do List API.
 
-This is the official Wails React template.
+---
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+## ✨ Фичи (UI)
 
-## Live Development
+- Создание задач (валидация формы).
+- Переключение приоритета (`3=High`, `2=Medium` (по умолчанию), `1=Low`).
+- Страницы: Inbox, Pending, Completed, Trash.
+- Фильтрация, сортировка и поиск по списку задач.
+- Мягкое удаление/восстановление и полное удаление (с подтверждением).
+- Поддержка смены темы (хук `useTheme`).
+- Пустые состояния и сообщения об отсутствии задач.
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+---
 
-## Building
+## 🛠 Технический стек
 
-To build a redistributable, production mode package, use `wails build`.
+- **Frontend:** React + React Router, JavaScript.
+- **Стили:** Tailwind CSS.
+- **API:** fetch к бэкенду DMARK To-Do List. 
+
+---
+
+## 📂 Структура проекта
+
+```text
+src
+├── api
+│   └── tasks.js                # функции для запросов к API (CRUD, фильтры, приоритет и т.д.)
+├── App.css                     # глобальные стили приложения
+├── App.jsx                     # корневой компонент + роуты/лейаут
+├── assets
+│   ├── fonts
+│   │   ├── nunito-v16-latin-regular.woff2
+│   │   └── OFL.txt
+│   └── images
+│       └── logo-universal.png
+├── components                  # переиспользуемые UI-компоненты
+│   ├── ConfirmDialog.jsx       # модальное подтверждение действий (trash / delete)
+│   ├── EmptyState.jsx          # пустые состояния списков
+│   ├── Sidebar.jsx             # навигация по страницам
+│   ├── TaskFilters.jsx         # контролы фильтра/сортировки/поиска
+│   ├── TaskForm.jsx            # форма создания задачи
+│   ├── TaskItem.jsx            # одна задача (чекбокс, приоритет, меню)
+│   └── TaskList.jsx            # список задач
+├── hooks
+│   ├── useTasks.js             # загрузка, мутации, счетчики; работа с API
+│   └── useTheme.js             # переключение темы
+├── main.jsx                    # входная точка Vite/ReactDOM.createRoot
+├── pages                       # страницы (роуты)
+│   ├── CompletedTasksPage.jsx
+│   ├── InboxTasksPage.jsx
+│   ├── PendingTasksPage.jsx
+│   ├── SettingsPage.jsx
+│   └── TrashPage.jsx
+└── style.css                   # дополнительные стили (переменные/utility)
+```
+
+## 🚀 Запуск и сборка
+
+```text
+# установка зависимостей
+npm install
+
+# дев-режим (http://localhost:5173 по умолчанию)
+npm run dev
+
+# production-сборка (папка dist/)
+npm run build
+
+# предпросмотр prod-сборки
+npm run preview
+```
+
+## 🖥️ Wails (desktop-режим)
+
+> Бэкенд **обязательно** должен быть запущен (Docker Compose), т.к. фронт ходит в API по HTTP. <br />
+> Необходимо зайти в директорию сервер, заполнить конфиги и использовать команду `make up-build`. <br />
+> Подробнее можете ознакомиться в `server/README.md`.
+
+**Запуск в dev**
+
+1. Поднимите бэкенд: make up (в репозитории сервера).
+2. В другом окне:
+```bash
+wails dev
+```
+
+**Production-сборка desktop**
+```bash
+# соберёт фронт и упакует бинарь
+wails build
+# бинарник будет в build/bin
+```
+
+P.S И да, не забудьте использовать `npm install`, чтобы стянуть все необходимые зависимости
