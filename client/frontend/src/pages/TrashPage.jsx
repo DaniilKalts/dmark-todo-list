@@ -5,16 +5,17 @@ import EmptyState from '../components/EmptyState';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function TrashPage({ tasks, loadTasks, onRestore, onHardDelete, onEmptyTrash }) {
+  const [sort, setSort] = useState('deleted_at');
   const [order, setOrder] = useState('desc');
   const [isClearing, setIsClearing] = useState(false);
   const [confirmAllOpen, setConfirmAllOpen] = useState(false);
 
   useEffect(() => {
-    loadTasks('deleted', order);
-  }, [order, loadTasks]);
+    loadTasks('deleted', sort, order);
+  }, [sort, order, loadTasks]);
 
   const handleRestore = async task => {
-    await onRestore(task, 'deleted', order);
+    await onRestore(task, 'deleted', sort, order);
   };
 
   const isEmpty = tasks.length === 0;
@@ -28,7 +29,7 @@ export default function TrashPage({ tasks, loadTasks, onRestore, onHardDelete, o
     setConfirmAllOpen(false);
     try {
       setIsClearing(true);
-      await onEmptyTrash('deleted', order);
+      await onEmptyTrash('deleted', sort, order);
     } finally {
       setIsClearing(false);
     }
@@ -36,15 +37,23 @@ export default function TrashPage({ tasks, loadTasks, onRestore, onHardDelete, o
 
   return (
     <>
-      {/* Заголовок */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">Корзина</h1>
 
-        {/* Панель управления: на мобиле в столбик, на sm+ в одну строку */}
         <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <TaskFilters order={order} setOrder={setOrder} className="w-full sm:w-auto" />
+          <TaskFilters
+            sort={sort}
+            setSort={setSort}
+            order={order}
+            setOrder={setOrder}
+            sorts={[
+              { value: 'deleted_at', label: 'По дате удаления' },
+              { value: 'priority', label: 'По приоритету' },
+            ]}
+            idPrefix="trash"
+            className="w-full sm:w-auto"
+          />
 
-          {/* Кнопка показывается только если есть удалённые задачи */}
           {!isEmpty && (
             <button
               type="button"
@@ -69,7 +78,6 @@ export default function TrashPage({ tasks, loadTasks, onRestore, onHardDelete, o
         </div>
       </div>
 
-      {/* Контент */}
       <div className="flex-1 flex">
         {isEmpty ? (
           <div className="flex-1 grid place-items-center">
@@ -81,7 +89,7 @@ export default function TrashPage({ tasks, loadTasks, onRestore, onHardDelete, o
               tasks={tasks}
               isTrash
               onRestore={handleRestore}
-              onHardDelete={task => onHardDelete(task, 'deleted', order)}
+              onHardDelete={task => onHardDelete(task, 'deleted', sort, order)}
             />
           </div>
         )}

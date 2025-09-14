@@ -1,4 +1,4 @@
-import TaskItem from './TaskItem.jsx';
+import TaskItem from './TaskItem';
 
 export default function TaskList({
   tasks,
@@ -6,18 +6,20 @@ export default function TaskList({
   onDelete,
   onRestore,
   onHardDelete,
+  onSetPriority,
   isTrash = false,
 }) {
   return (
-    <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-700">
-      {tasks.map(task => (
+    <div className="flex flex-col gap-1.5">
+      {tasks.map(t => (
         <TaskItem
-          key={task.id}
-          task={task}
+          key={t.id}
+          task={t}
           onToggle={onToggle}
           onDelete={onDelete}
           onRestore={onRestore}
           onHardDelete={onHardDelete}
+          onSetPriority={onSetPriority} // NEW
           isTrash={isTrash}
         />
       ))}

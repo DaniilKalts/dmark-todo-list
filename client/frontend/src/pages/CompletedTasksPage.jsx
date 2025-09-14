@@ -3,12 +3,19 @@ import TaskList from '../components/TaskList';
 import TaskFilters from '../components/TaskFilters';
 import EmptyState from '../components/EmptyState';
 
-export default function CompletedTasksPage({ tasks, loadTasks, onToggle, onDelete }) {
+export default function CompletedTasksPage({
+  tasks,
+  loadTasks,
+  onToggle,
+  onDelete,
+  onSetPriority,
+}) {
+  const [sort, setSort] = useState('completed_at');
   const [order, setOrder] = useState('desc');
 
   useEffect(() => {
-    loadTasks('completed', order);
-  }, [order, loadTasks]);
+    loadTasks('completed', sort, order);
+  }, [sort, order, loadTasks]);
 
   return (
     <>
@@ -16,7 +23,17 @@ export default function CompletedTasksPage({ tasks, loadTasks, onToggle, onDelet
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200">
           Завершённые
         </h1>
-        <TaskFilters order={order} setOrder={setOrder} />
+        <TaskFilters
+          sort={sort}
+          setSort={setSort}
+          order={order}
+          setOrder={setOrder}
+          sorts={[
+            { value: 'completed_at', label: 'По дате завершения' },
+            { value: 'priority', label: 'По приоритету' },
+          ]}
+          idPrefix="completed"
+        />
       </div>
 
       <div className="flex-1 flex">
@@ -28,8 +45,9 @@ export default function CompletedTasksPage({ tasks, loadTasks, onToggle, onDelet
           <div className="w-full">
             <TaskList
               tasks={tasks}
-              onToggle={task => onToggle(task, 'completed', order)}
-              onDelete={task => onDelete(task, 'completed', order)}
+              onToggle={task => onToggle(task, 'completed', sort, order)}
+              onDelete={task => onDelete(task, 'completed', sort, order)}
+              onSetPriority={(task, p) => onSetPriority(task, p, 'completed', sort, order)}
             />
           </div>
         )}

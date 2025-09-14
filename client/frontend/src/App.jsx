@@ -15,6 +15,7 @@ function App() {
     pendingCount,
     loadTasks,
     handleToggleTask,
+    handleSetPriority,
     handleDeleteTask,
     handleRestoreTask,
     handleHardDeleteTask,
@@ -68,6 +69,7 @@ function App() {
                   loadTasks={loadTasks}
                   onToggle={handleToggleTask}
                   onDelete={handleDeleteTask}
+                  onSetPriority={handleSetPriority}
                 />
               }
             />
@@ -79,6 +81,7 @@ function App() {
                   loadTasks={loadTasks}
                   onToggle={handleToggleTask}
                   onDelete={handleDeleteTask}
+                  onSetPriority={handleSetPriority}
                 />
               }
             />
@@ -90,6 +93,7 @@ function App() {
                   loadTasks={loadTasks}
                   onToggle={handleToggleTask}
                   onDelete={handleDeleteTask}
+                  onSetPriority={handleSetPriority}
                 />
               }
             />
