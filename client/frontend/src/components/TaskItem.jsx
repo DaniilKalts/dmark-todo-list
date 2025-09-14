@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import ConfirmDialog from './ConfirmDialog';
 
 export default function TaskItem({
   task,
@@ -9,17 +10,26 @@ export default function TaskItem({
   isTrash = false,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = e => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const askHardDelete = () => {
+    setMenuOpen(false);
+    setConfirmDeleteOpen(true);
+  };
+
+  const confirmHardDelete = async () => {
+    setConfirmDeleteOpen(false);
+    await onHardDelete?.(task);
+  };
 
   return (
     <div className="relative">
@@ -73,10 +83,7 @@ export default function TaskItem({
                 Восстановить
               </button>
               <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  onHardDelete(task);
-                }}
+                onClick={askHardDelete}
                 className="block w-full text-left px-4 py-3 sm:py-2 text-sm hover:bg-gray-600"
                 role="menuitem"
               >
@@ -96,6 +103,20 @@ export default function TaskItem({
             </button>
           )}
         </div>
+      )}
+
+      {/* Модалка подтверждения «Удалить навсегда» */}
+      {isTrash && (
+        <ConfirmDialog
+          open={confirmDeleteOpen}
+          onClose={() => setConfirmDeleteOpen(false)}
+          onConfirm={confirmHardDelete}
+          title="Удалить задачу навсегда?"
+          description="Действие необратимо. Задача будет удалена без возможности восстановления."
+          confirmText="Удалить навсегда"
+          cancelText="Отмена"
+          tone="danger"
+        />
       )}
     </div>
   );
