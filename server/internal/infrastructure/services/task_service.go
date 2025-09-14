@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 
@@ -17,32 +18,65 @@ func NewTaskService(repo ports.TaskRepository) ports.TaskService {
 	return &taskService{repo: repo}
 }
 
-func (s *taskService) Create(ctx context.Context, title string) (domain.Task, error) {
+func (s *taskService) Create(
+	ctx context.Context,
+	title string,
+	priority *domain.Priority,
+) (domain.Task, error) {
 	id, err := uuid.NewV7()
 	if err != nil {
 		return domain.Task{}, err
 	}
 
-	return s.repo.Create(ctx, id, title)
+	p := domain.PriorityMedium
+	if priority != nil {
+		if *priority >= domain.PriorityLow && *priority <= domain.PriorityHigh {
+			p = *priority
+		}
+	}
+
+	return s.repo.Create(ctx, id, title, p)
 }
 
-func (s *taskService) List(ctx context.Context, filter ports.TaskFilter, order ports.SortOrder) (
-	[]domain.Task,
-	error,
-) {
+func (s *taskService) SetPriority(
+	ctx context.Context, id uuid.UUID, priority domain.Priority,
+) error {
+	if priority < domain.PriorityLow || priority > domain.PriorityHigh {
+		return fmt.Errorf("invalid priority")
+	}
+	return s.repo.SetPriority(ctx, id, priority)
+}
+
+func (s *taskService) List(
+	ctx context.Context,
+	filter ports.TaskFilter,
+	sortBy ports.SortBy,
+	order ports.SortOrder,
+) ([]domain.Task, error) {
 	if order == "" {
 		order = ports.SortDesc
 	}
 
+	if sortBy == "" {
+		switch filter {
+		case ports.FilterCompleted:
+			sortBy = ports.SortByCompletedAt
+		case ports.FilterDeleted:
+			sortBy = ports.SortByDeletedAt
+		default:
+			sortBy = ports.SortByCreatedAt
+		}
+	}
+
 	switch filter {
 	case ports.FilterPending:
-		return s.repo.ListPending(ctx, order)
+		return s.repo.ListPending(ctx, sortBy, order)
 	case ports.FilterCompleted:
-		return s.repo.ListCompleted(ctx, order)
+		return s.repo.ListCompleted(ctx, sortBy, order)
 	case ports.FilterDeleted:
-		return s.repo.ListDeleted(ctx, order)
+		return s.repo.ListDeleted(ctx, sortBy, order)
 	default:
-		return s.repo.List(ctx, order)
+		return s.repo.List(ctx, sortBy, order)
 	}
 }
 
@@ -70,15 +104,9 @@ func (s *taskService) HardDelete(ctx context.Context, id uuid.UUID) error {
 	if rows == 0 {
 		return ports.ErrTaskNotDeleted
 	}
-
 	return nil
 }
 
 func (s *taskService) EmptyTrash(ctx context.Context) error {
-	err := s.repo.EmptyTrash(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.repo.EmptyTrash(ctx)
 }

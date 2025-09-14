@@ -24,6 +24,7 @@ func mapRowToDomain(row sqlc.Task) domain.Task {
 	return domain.Task{
 		ID:        row.ID,
 		Title:     row.Title,
+		Priority:  domain.Priority(row.Priority),
 		CreatedAt: row.CreatedAt,
 		UpdatedAt: row.UpdatedAt,
 		CompletedAt: func() *time.Time {
@@ -43,10 +44,16 @@ func mapRowToDomain(row sqlc.Task) domain.Task {
 	}
 }
 
-func (r *taskRepo) Create(ctx context.Context, id uuid.UUID, title string) (domain.Task, error) {
+func (r *taskRepo) Create(
+	ctx context.Context,
+	id uuid.UUID,
+	title string,
+	priority domain.Priority,
+) (domain.Task, error) {
 	params := sqlc.CreateTaskParams{
-		ID:    id,
-		Title: title,
+		ID:       id,
+		Title:    title,
+		Priority: int16(priority),
 	}
 
 	row, err := r.q.CreateTask(ctx, params)
@@ -57,8 +64,28 @@ func (r *taskRepo) Create(ctx context.Context, id uuid.UUID, title string) (doma
 	return mapRowToDomain(row), nil
 }
 
-func (r *taskRepo) List(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
-	rows, err := r.q.ListTasks(ctx, string(order))
+func (r *taskRepo) SetPriority(
+	ctx context.Context, id uuid.UUID, priority domain.Priority,
+) error {
+	return r.q.UpdateTaskPriority(
+		ctx, sqlc.UpdateTaskPriorityParams{
+			ID:       id,
+			Priority: int16(priority),
+		},
+	)
+}
+
+func (r *taskRepo) List(
+	ctx context.Context,
+	sortBy ports.SortBy,
+	order ports.SortOrder,
+) ([]domain.Task, error) {
+	rows, err := r.q.ListTasks(
+		ctx, sqlc.ListTasksParams{
+			SortBy:    string(sortBy),
+			SortOrder: string(order),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -71,8 +98,17 @@ func (r *taskRepo) List(ctx context.Context, order ports.SortOrder) ([]domain.Ta
 	return tasks, nil
 }
 
-func (r *taskRepo) ListPending(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
-	rows, err := r.q.ListPendingTasks(ctx, order)
+func (r *taskRepo) ListPending(
+	ctx context.Context,
+	sortBy ports.SortBy,
+	order ports.SortOrder,
+) ([]domain.Task, error) {
+	rows, err := r.q.ListPendingTasks(
+		ctx, sqlc.ListPendingTasksParams{
+			SortBy:    string(sortBy),
+			SortOrder: string(order),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +121,17 @@ func (r *taskRepo) ListPending(ctx context.Context, order ports.SortOrder) ([]do
 	return tasks, nil
 }
 
-func (r *taskRepo) ListCompleted(ctx context.Context, order ports.SortOrder) (
-	[]domain.Task, error,
-) {
-	rows, err := r.q.ListCompletedTasks(ctx, order)
+func (r *taskRepo) ListCompleted(
+	ctx context.Context,
+	sortBy ports.SortBy,
+	order ports.SortOrder,
+) ([]domain.Task, error) {
+	rows, err := r.q.ListCompletedTasks(
+		ctx, sqlc.ListCompletedTasksParams{
+			SortBy:    string(sortBy),
+			SortOrder: string(order),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +144,17 @@ func (r *taskRepo) ListCompleted(ctx context.Context, order ports.SortOrder) (
 	return tasks, nil
 }
 
-func (r *taskRepo) ListDeleted(ctx context.Context, order ports.SortOrder) ([]domain.Task, error) {
-	rows, err := r.q.ListDeletedTasks(ctx, order)
+func (r *taskRepo) ListDeleted(
+	ctx context.Context,
+	sortBy ports.SortBy,
+	order ports.SortOrder,
+) ([]domain.Task, error) {
+	rows, err := r.q.ListDeletedTasks(
+		ctx, sqlc.ListDeletedTasksParams{
+			SortBy:    string(sortBy),
+			SortOrder: string(order),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

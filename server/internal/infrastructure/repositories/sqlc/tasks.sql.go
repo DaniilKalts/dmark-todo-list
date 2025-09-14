@@ -12,22 +12,24 @@ import (
 )
 
 const createTask = `-- name: CreateTask :one
-INSERT INTO tasks (id, title)
-VALUES ($1, $2)
-RETURNING id, title, created_at, updated_at, completed_at, deleted_at
+INSERT INTO tasks (id, title, priority)
+VALUES ($1, $2, $3)
+    RETURNING id, title, priority, created_at, updated_at, completed_at, deleted_at
 `
 
 type CreateTaskParams struct {
-	ID    uuid.UUID
-	Title string
+	ID       uuid.UUID
+	Title    string
+	Priority int16
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
-	row := q.db.QueryRowContext(ctx, createTask, arg.ID, arg.Title)
+	row := q.db.QueryRowContext(ctx, createTask, arg.ID, arg.Title, arg.Priority)
 	var i Task
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
+		&i.Priority,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.CompletedAt,
@@ -60,16 +62,24 @@ func (q *Queries) HardDeleteTask(ctx context.Context, id uuid.UUID) (int64, erro
 }
 
 const listCompletedTasks = `-- name: ListCompletedTasks :many
-SELECT id, title, created_at, updated_at, completed_at, deleted_at
+SELECT id, title, priority, created_at, updated_at, completed_at, deleted_at
 FROM tasks
 WHERE completed_at IS NOT NULL AND deleted_at IS NULL
 ORDER BY
-    CASE WHEN $1 = 'asc' THEN completed_at END ASC,
-    CASE WHEN $1 = 'desc' THEN completed_at END DESC
+    CASE WHEN $1='priority'     AND $2='asc'  THEN priority     END ASC,
+    CASE WHEN $1='priority'     AND $2='desc' THEN priority     END DESC,
+    CASE WHEN $1='completed_at' AND $2='asc'  THEN completed_at END ASC,
+    CASE WHEN $1='completed_at' AND $2='desc' THEN completed_at END DESC,
+    id DESC
 `
 
-func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
-	rows, err := q.db.QueryContext(ctx, listCompletedTasks, sortOrder)
+type ListCompletedTasksParams struct {
+	SortBy    interface{}
+	SortOrder interface{}
+}
+
+func (q *Queries) ListCompletedTasks(ctx context.Context, arg ListCompletedTasksParams) ([]Task, error) {
+	rows, err := q.db.QueryContext(ctx, listCompletedTasks, arg.SortBy, arg.SortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +90,7 @@ func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{})
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
+			&i.Priority,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CompletedAt,
@@ -99,16 +110,24 @@ func (q *Queries) ListCompletedTasks(ctx context.Context, sortOrder interface{})
 }
 
 const listDeletedTasks = `-- name: ListDeletedTasks :many
-SELECT id, title, created_at, updated_at, completed_at, deleted_at
+SELECT id, title, priority, created_at, updated_at, completed_at, deleted_at
 FROM tasks
 WHERE deleted_at IS NOT NULL
 ORDER BY
-    CASE WHEN $1 = 'asc' THEN deleted_at END ASC,
-    CASE WHEN $1 = 'desc' THEN deleted_at END DESC
+    CASE WHEN $1='priority'   AND $2='asc'  THEN priority   END ASC,
+    CASE WHEN $1='priority'   AND $2='desc' THEN priority   END DESC,
+    CASE WHEN $1='deleted_at' AND $2='asc'  THEN deleted_at END ASC,
+    CASE WHEN $1='deleted_at' AND $2='desc' THEN deleted_at END DESC,
+    id DESC
 `
 
-func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
-	rows, err := q.db.QueryContext(ctx, listDeletedTasks, sortOrder)
+type ListDeletedTasksParams struct {
+	SortBy    interface{}
+	SortOrder interface{}
+}
+
+func (q *Queries) ListDeletedTasks(ctx context.Context, arg ListDeletedTasksParams) ([]Task, error) {
+	rows, err := q.db.QueryContext(ctx, listDeletedTasks, arg.SortBy, arg.SortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +138,7 @@ func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) (
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
+			&i.Priority,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CompletedAt,
@@ -138,16 +158,24 @@ func (q *Queries) ListDeletedTasks(ctx context.Context, sortOrder interface{}) (
 }
 
 const listPendingTasks = `-- name: ListPendingTasks :many
-SELECT id, title, created_at, updated_at, completed_at, deleted_at
+SELECT id, title, priority, created_at, updated_at, completed_at, deleted_at
 FROM tasks
 WHERE completed_at IS NULL AND deleted_at IS NULL
 ORDER BY
-    CASE WHEN $1 = 'asc' THEN created_at END ASC,
-    CASE WHEN $1 = 'desc' THEN created_at END DESC
+    CASE WHEN $1='priority'   AND $2='asc'  THEN priority   END ASC,
+    CASE WHEN $1='priority'   AND $2='desc' THEN priority   END DESC,
+    CASE WHEN $1='created_at' AND $2='asc'  THEN created_at END ASC,
+    CASE WHEN $1='created_at' AND $2='desc' THEN created_at END DESC,
+    id DESC
 `
 
-func (q *Queries) ListPendingTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
-	rows, err := q.db.QueryContext(ctx, listPendingTasks, sortOrder)
+type ListPendingTasksParams struct {
+	SortBy    interface{}
+	SortOrder interface{}
+}
+
+func (q *Queries) ListPendingTasks(ctx context.Context, arg ListPendingTasksParams) ([]Task, error) {
+	rows, err := q.db.QueryContext(ctx, listPendingTasks, arg.SortBy, arg.SortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +186,7 @@ func (q *Queries) ListPendingTasks(ctx context.Context, sortOrder interface{}) (
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
+			&i.Priority,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CompletedAt,
@@ -177,16 +206,24 @@ func (q *Queries) ListPendingTasks(ctx context.Context, sortOrder interface{}) (
 }
 
 const listTasks = `-- name: ListTasks :many
-SELECT id, title, created_at, updated_at, completed_at, deleted_at
+SELECT id, title, priority, created_at, updated_at, completed_at, deleted_at
 FROM tasks
 WHERE deleted_at IS NULL
 ORDER BY
-    CASE WHEN $1 = 'asc' THEN created_at END ASC,
-    CASE WHEN $1 = 'desc' THEN created_at END DESC
+    CASE WHEN $1='priority'   AND $2='asc'  THEN priority   END ASC,
+    CASE WHEN $1='priority'   AND $2='desc' THEN priority   END DESC,
+    CASE WHEN $1='created_at' AND $2='asc'  THEN created_at END ASC,
+    CASE WHEN $1='created_at' AND $2='desc' THEN created_at END DESC,
+    id DESC
 `
 
-func (q *Queries) ListTasks(ctx context.Context, sortOrder interface{}) ([]Task, error) {
-	rows, err := q.db.QueryContext(ctx, listTasks, sortOrder)
+type ListTasksParams struct {
+	SortBy    interface{}
+	SortOrder interface{}
+}
+
+func (q *Queries) ListTasks(ctx context.Context, arg ListTasksParams) ([]Task, error) {
+	rows, err := q.db.QueryContext(ctx, listTasks, arg.SortBy, arg.SortOrder)
 	if err != nil {
 		return nil, err
 	}
@@ -197,6 +234,7 @@ func (q *Queries) ListTasks(ctx context.Context, sortOrder interface{}) ([]Task,
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
+			&i.Priority,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.CompletedAt,
@@ -256,5 +294,21 @@ WHERE id = $1 AND deleted_at IS NULL
 
 func (q *Queries) SoftDeleteTask(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, softDeleteTask, id)
+	return err
+}
+
+const updateTaskPriority = `-- name: UpdateTaskPriority :exec
+UPDATE tasks
+SET priority = $2, updated_at = now()
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+type UpdateTaskPriorityParams struct {
+	ID       uuid.UUID
+	Priority int16
+}
+
+func (q *Queries) UpdateTaskPriority(ctx context.Context, arg UpdateTaskPriorityParams) error {
+	_, err := q.db.ExecContext(ctx, updateTaskPriority, arg.ID, arg.Priority)
 	return err
 }

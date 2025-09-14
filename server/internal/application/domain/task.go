@@ -6,6 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type Priority int16
+
+const (
+	PriorityLow Priority = iota + 1
+	PriorityMedium
+	PriorityHigh
+)
+
 type Task struct {
 	// Вместо последовательности (Serial) буду использовать
 	// универсально уникальный идентификатор.
@@ -15,6 +23,7 @@ type Task struct {
 	ID uuid.UUID `json:"id"`
 
 	Title       string     `json:"title"`
+	Priority    Priority   `json:"priority"`
 	CompletedAt *time.Time `json:"completedAt"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`

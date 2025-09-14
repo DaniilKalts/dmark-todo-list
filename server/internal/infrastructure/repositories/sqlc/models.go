@@ -14,6 +14,7 @@ import (
 type Task struct {
 	ID          uuid.UUID
 	Title       string
+	Priority    int16
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	CompletedAt sql.NullTime

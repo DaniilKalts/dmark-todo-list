@@ -24,11 +24,23 @@ const (
 	SortDesc SortOrder = "desc"
 )
 
+type SortBy string
+
+const (
+	SortByCreatedAt   SortBy = "created_at"
+	SortByPriority    SortBy = "priority"
+	SortByCompletedAt SortBy = "completed_at"
+	SortByDeletedAt   SortBy = "deleted_at"
+)
+
 var ErrTaskNotDeleted = errors.New("cannot hard delete a task that is not in trash")
 
 type TaskService interface {
-	Create(ctx context.Context, title string) (domain.Task, error)
-	List(ctx context.Context, filter TaskFilter, order SortOrder) ([]domain.Task, error)
+	Create(ctx context.Context, title string, priority *domain.Priority) (domain.Task, error)
+	SetPriority(ctx context.Context, id uuid.UUID, priority domain.Priority) error
+	List(ctx context.Context, filter TaskFilter, sortBy SortBy, order SortOrder) (
+		[]domain.Task, error,
+	)
 	Complete(ctx context.Context, id uuid.UUID) error
 	Reopen(ctx context.Context, id uuid.UUID) error
 	SoftDelete(ctx context.Context, id uuid.UUID) error

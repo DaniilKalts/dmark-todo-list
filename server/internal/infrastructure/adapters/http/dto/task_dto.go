@@ -3,22 +3,13 @@
 
 package dto
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
-
 // DTO для создания задачи
 type CreateTaskRequest struct {
-	Title string `json:"title" validate:"required,min=5,max=40"`
+	Title    string `json:"title" validate:"required,min=5,max=40"`
+	Priority *int   `json:"priority" validate:"omitempty,oneof=1 2 3"`
 }
 
-// DTO для ответа при возврате задачи
-type TaskResponse struct {
-	ID          uuid.UUID  `json:"id"`
-	Title       string     `json:"title"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
-	CompletedAt *time.Time `json:"completedAt"`
+// DTO для изменение приоритета задачи
+type SetPriorityRequest struct {
+	Priority int `json:"priority" validate:"required,oneof=1 2 3"`
 }

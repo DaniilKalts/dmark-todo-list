@@ -23,6 +23,7 @@ func NewServer(taskHandler *handlers.TaskHandler) *Server {
 				AllowOrigins:     []string{"*"},
 				AllowCredentials: false,
 				AllowMethods: []string{
+					fiber.MethodOptions,
 					fiber.MethodPost,
 					fiber.MethodGet,
 					fiber.MethodPatch,
@@ -37,6 +38,7 @@ func NewServer(taskHandler *handlers.TaskHandler) *Server {
 
 	taskGroup.Post("/", taskHandler.Create)
 	taskGroup.Get("/", taskHandler.List)
+	taskGroup.Patch("/:id/priority", taskHandler.SetPriority)
 	taskGroup.Patch("/:id/complete", taskHandler.Complete)
 	taskGroup.Patch("/:id/reopen", taskHandler.Reopen)
 	taskGroup.Patch("/:id/trash", taskHandler.SoftDelete)
