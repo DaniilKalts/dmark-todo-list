@@ -164,3 +164,12 @@ func (h *TaskHandler) HardDelete(ctx fiber.Ctx) error {
 
 	return ctx.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *TaskHandler) EmptyTrash(ctx fiber.Ctx) error {
+	err := h.svc.EmptyTrash(ctx)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return ctx.SendStatus(fiber.StatusNoContent)
+}

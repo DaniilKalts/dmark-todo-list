@@ -70,5 +70,15 @@ func (s *taskService) HardDelete(ctx context.Context, id uuid.UUID) error {
 	if rows == 0 {
 		return ports.ErrTaskNotDeleted
 	}
+
+	return nil
+}
+
+func (s *taskService) EmptyTrash(ctx context.Context) error {
+	err := s.repo.EmptyTrash(ctx)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -36,6 +36,16 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, e
 	return i, err
 }
 
+const emptyTrash = `-- name: EmptyTrash :exec
+DELETE FROM tasks
+WHERE deleted_at IS NOT NULL
+`
+
+func (q *Queries) EmptyTrash(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, emptyTrash)
+	return err
+}
+
 const hardDeleteTask = `-- name: HardDeleteTask :execrows
 DELETE FROM tasks
 WHERE id = $1 AND deleted_at IS NOT NULL

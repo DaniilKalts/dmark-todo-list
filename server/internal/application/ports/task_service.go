@@ -34,4 +34,5 @@ type TaskService interface {
 	SoftDelete(ctx context.Context, id uuid.UUID) error
 	Restore(ctx context.Context, id uuid.UUID) error
 	HardDelete(ctx context.Context, id uuid.UUID) error
+	EmptyTrash(ctx context.Context) error
 }

@@ -134,3 +134,7 @@ func (r *taskRepo) Restore(ctx context.Context, id uuid.UUID) error {
 func (r *taskRepo) HardDelete(ctx context.Context, id uuid.UUID) (int64, error) {
 	return r.q.HardDeleteTask(ctx, id)
 }
+
+func (r *taskRepo) EmptyTrash(ctx context.Context) error {
+	return r.q.EmptyTrash(ctx)
+}

@@ -58,3 +58,7 @@ WHERE id = $1 AND deleted_at IS NOT NULL;
 -- name: HardDeleteTask :execrows
 DELETE FROM tasks
 WHERE id = $1 AND deleted_at IS NOT NULL;
+
+-- name: EmptyTrash :exec
+DELETE FROM tasks
+WHERE deleted_at IS NOT NULL;

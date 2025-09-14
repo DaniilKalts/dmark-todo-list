@@ -19,4 +19,5 @@ type TaskRepository interface {
 	SoftDelete(ctx context.Context, id uuid.UUID) error
 	Restore(ctx context.Context, id uuid.UUID) error
 	HardDelete(ctx context.Context, id uuid.UUID) (int64, error)
+	EmptyTrash(ctx context.Context) error
 }

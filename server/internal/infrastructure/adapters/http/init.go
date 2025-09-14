@@ -41,6 +41,7 @@ func NewServer(taskHandler *handlers.TaskHandler) *Server {
 	taskGroup.Patch("/:id/reopen", taskHandler.Reopen)
 	taskGroup.Patch("/:id/trash", taskHandler.SoftDelete)
 	taskGroup.Patch("/:id/restore", taskHandler.Restore)
+	taskGroup.Delete("/trash", taskHandler.EmptyTrash)
 	taskGroup.Delete("/:id", taskHandler.HardDelete)
 
 	return &Server{app: app}
