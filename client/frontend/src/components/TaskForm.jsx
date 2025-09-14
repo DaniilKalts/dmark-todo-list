@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import * as Yup from 'yup';
 
 const schema = Yup.object().shape({
@@ -12,6 +12,19 @@ const schema = Yup.object().shape({
 export default function TaskForm({ onTaskAdded }) {
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (title === '') {
+      setError('');
+      return;
+    }
+    try {
+      schema.validateSync({ title }, { abortEarly: true });
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [title]);
 
   const isValid = useMemo(() => schema.isValidSync({ title }), [title]);
 
@@ -27,9 +40,7 @@ export default function TaskForm({ onTaskAdded }) {
   };
 
   const handleChange = e => {
-    const next = e.target.value;
-    setTitle(next);
-    if (error && schema.isValidSync({ title: next })) setError('');
+    setTitle(e.target.value);
   };
 
   const handleSubmit = async () => {
@@ -55,21 +66,24 @@ export default function TaskForm({ onTaskAdded }) {
   };
 
   const handleKeyDown = e => {
-    if (e.key === 'Enter' && isValid) {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleSubmit();
     }
   };
 
+  const hasError = !!error;
+
   return (
     <div className="w-full">
       <div
-        className="
-          flex items-center border border-gray-300 dark:border-gray-700 rounded-md
-          bg-white dark:bg-[#1E1E1E] shadow-sm
-          focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2
-          dark:focus-within:ring-offset-[#1E1E1E]
-        "
+        className={
+          `flex items-center border rounded-md bg-white dark:bg-[#1E1E1E] shadow-sm 
+           focus-within:ring-2 focus-within:ring-offset-2 dark:focus-within:ring-offset-[#1E1E1E] ` +
+          (hasError
+            ? 'border-red-500 focus-within:ring-red-500'
+            : 'border-gray-300 dark:border-gray-700 focus-within:ring-blue-500')
+        }
       >
         <input
           type="text"
@@ -78,10 +92,10 @@ export default function TaskForm({ onTaskAdded }) {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           enterKeyHint="done"
-          aria-invalid={!!error}
+          aria-invalid={hasError}
+          aria-describedby={hasError ? 'title-error' : undefined}
           className="
-            flex-1 px-3
-            py-3 md:py-2
+            flex-1 px-3 py-3 md:py-2
             bg-transparent outline-none
             text-gray-800 dark:text-gray-200 placeholder-gray-400
             text-base md:text-sm
@@ -106,7 +120,13 @@ export default function TaskForm({ onTaskAdded }) {
         </button>
       </div>
 
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      {hasError && (
+        <p id="title-error" className="mt-2 text-sm text-red-500" aria-live="polite">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{title.length}/40</div>
     </div>
   );
 }

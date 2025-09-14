@@ -28,6 +28,8 @@ export default function InboxTasksPage({ tasks, loadTasks, onToggle, onDelete })
         : new Date(b.completedAt) - new Date(a.completedAt),
     );
 
+  const isEmpty = activeTasks.length === 0 && completedTasks.length === 0;
+
   return (
     <>
       <div className="flex items-center justify-between mb-4">
@@ -36,15 +38,16 @@ export default function InboxTasksPage({ tasks, loadTasks, onToggle, onDelete })
 
       <TaskForm onTaskAdded={() => loadTasks()} />
 
-      <section className="mt-6 flex-1 flex flex-col">
-        {activeTasks.length === 0 && completedTasks.length === 0 ? (
-          <div className="flex-1 grid place-items-center">
+      <section className="flex-1">
+        {isEmpty ? (
+          <div className="flex-1 grid place-items-center mt-6">
             <EmptyState icon="📝" message="У тебя нет текущих задач. Добавь новую!" />
           </div>
         ) : (
-          <>
+          // ЕДИНЫЙ контейнер: одинаковый отступ от формы и равный gap между секциями
+          <div className="mt-6 flex flex-col space-y-6">
             {activeTasks.length > 0 && (
-              <>
+              <section>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-2">
                   <h2 className="text-base sm:text-lg font-semibold text-gray-600 dark:text-gray-400">
                     Текущие
@@ -57,11 +60,11 @@ export default function InboxTasksPage({ tasks, loadTasks, onToggle, onDelete })
                   />
                 </div>
                 <TaskList tasks={activeTasks} onToggle={onToggle} onDelete={onDelete} />
-              </>
+              </section>
             )}
 
             {completedTasks.length > 0 && (
-              <section className="mt-6">
+              <section>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-2">
                   <h2 className="text-base sm:text-lg font-semibold text-gray-600 dark:text-gray-400">
                     Завершённые
@@ -76,7 +79,7 @@ export default function InboxTasksPage({ tasks, loadTasks, onToggle, onDelete })
                 <TaskList tasks={completedTasks} onToggle={onToggle} onDelete={onDelete} />
               </section>
             )}
-          </>
+          </div>
         )}
       </section>
     </>
