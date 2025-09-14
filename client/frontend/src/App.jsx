@@ -7,6 +7,7 @@ import InboxTasksPage from './pages/InboxTasksPage.jsx';
 import PendingTasksPage from './pages/PendingTasksPage.jsx';
 import CompletedTasksPage from './pages/CompletedTasksPage.jsx';
 import TrashPage from './pages/TrashPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   const {
@@ -102,6 +103,7 @@ function App() {
                 />
               }
             />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/inbox" replace />} />
           </Routes>
         </main>

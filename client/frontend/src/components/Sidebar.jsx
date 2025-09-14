@@ -77,6 +77,16 @@ export default function Sidebar({ id = 'app-sidebar', pendingCount, isOpen = fal
               <span className="text-sm md:text-base">Корзина</span>
             </span>
           </Link>
+          <Link
+            to="/settings"
+            onClick={handleNavClick}
+            className={`${baseBtn} ${hoverBtn} ${location.pathname === '/settings' ? activeBtn : ''}`}
+          >
+            <span className="flex items-center gap-3">
+              <span className="text-lg">⚙️</span>
+              <span className="text-sm md:text-base">Настройки</span>
+            </span>
+          </Link>
         </nav>
       </div>
     </aside>
